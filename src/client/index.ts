@@ -1,4 +1,5 @@
 import * as THREE from "/build/three.module.js";
+import { init_events } from "./event_listeners.js";
 
 const scene: THREE.Scene = new THREE.Scene();
 
@@ -7,6 +8,8 @@ const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(75, window.i
 const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+
+init_events();
 
 const geometry: THREE.BoxGeometry = new THREE.BoxGeometry();
 const material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
