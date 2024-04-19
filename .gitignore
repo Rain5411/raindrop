@@ -92,6 +92,7 @@ out
 dist/client/*
 dist/server/*
 !dist/client/index.html
+!dist/client/model.glb
 
 # Gatsby files
 .cache/
