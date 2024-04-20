@@ -14,6 +14,7 @@ class App {
     app.use(express.static(path.join(__dirname, "../client")));
     app.use("/build/three.module.js", express.static(path.join(__dirname, "../../node_modules/three/build/three.module.js")));
     app.use("/jsm", express.static(path.join(__dirname, "../../node_modules/three/examples/jsm")));
+    app.use("/model.glb", express.static(path.join(__dirname, "../client/model.glb")));
 
     this.server = new http.Server(app);
   }
