@@ -28,6 +28,7 @@ export class World {
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.shadowMap.enabled = true;
     this.clock = new THREE.Clock;
     this.raindropMaterial = new THREE.ShaderMaterial;
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -64,12 +65,19 @@ export class World {
     this.scene.add(poolModel.scene);
 
 
-  // The two lightbulbs of the lamp glb is an emissive material.
-  // Emissive material shares same uuid left and right, so modifying one will change emissiveIntensity of both.
+    const names = ["Body_Body_0", "Marble", "Tile", "Table", "PLant1", "Plant2"];
+    for (const name of names) {
+      const obj = poolModel.scene.getObjectByName(name) as THREE.Mesh;
+      if (obj != null && obj != undefined) {
+        obj.castShadow = obj.receiveShadow = true;
+      }
+    }
+
+    // The two lightbulbs of the lamp glb is an emissive material.
+    // Emissive material shares same uuid left and right, so modifying one will change emissiveIntensity of both.
     const lampLightBulb = poolModel.scene.getObjectByName('Light_Left_Emissive_0') as THREE.Mesh;
     const lampLightBulbMaterial = lampLightBulb.material as THREE.MeshStandardMaterial;
     lampLightBulbMaterial.emissiveIntensity = this.lampLightIntensity / 2.5; 
-
 
     // Initialize point lights - inside the two "lightbulb" parts of the lamp
     // TODO. Let users turn this on and off via UI to simulate lamp on and off.
@@ -80,6 +88,7 @@ export class World {
     pointLightLeft.intensity = this.lampLightIntensity;
     pointLightLeft.decay = 0.7;
     pointLightLeft.distance = 18;
+    pointLightLeft.castShadow = true;
 
     const pointLightRight = new THREE.PointLight(0xf6f5af);
     pointLightRight.position.set(1.84, 2.08, 8.7);
@@ -88,6 +97,7 @@ export class World {
     pointLightRight.intensity = this.lampLightIntensity;
     pointLightRight.decay = 0.7;
     pointLightRight.distance = 18;
+    pointLightRight.castShadow = true;
 
 
     // For debugging, draw a yellow bounding box around our poolmodel scene.
