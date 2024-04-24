@@ -6,6 +6,8 @@ import { EffectComposer } from '/jsm/postprocessing/EffectComposer.js'
 import {UnrealBloomPass} from '/jsm/postprocessing/UnrealBloomPass.js'
 import { RenderPass } from '/jsm/postprocessing/RenderPass.js';
 
+import { Water } from "./waters.js";
+
 import rainVertexShader from "./shaders/rain_vertex.glsl";
 import rainFragmentShader from "./shaders/rain_frag.glsl";
 
@@ -21,7 +23,8 @@ export class World {
   
   private lampLightIntensity: number;
 
-  // TODO: add water & particle system here.
+  // TODO: move particle system here.
+  private water: Water;
 
   constructor() {
     this.scene = new THREE.Scene();
@@ -47,6 +50,20 @@ export class World {
 
     this.load_scene();
     this.init_rain();
+  }
+
+  private load_water(pool: THREE.Mesh) {
+    const boundingBox = new THREE.Box3().setFromObject(pool);
+    const center = new THREE.Vector3();
+    const size = new THREE.Vector3();
+    boundingBox.getCenter(center);
+    boundingBox.getSize(size);
+    
+    center.y += size.y / 4.0;
+
+    this.water = new Water(this.scene, new THREE.Vector2(size.x, size.z), center);
+
+    // TODO: pass raindrop texture
   }
 
   private async load_scene() {
@@ -75,6 +92,10 @@ export class World {
     for (const name of names) {
       const obj = poolModel.scene.getObjectByName(name) as THREE.Mesh;
       enable_shadow(obj);
+
+      if (name === "Tile") {
+        this.load_water(obj);
+      }
     }
 
     // The two lightbulbs of the lamp glb is an emissive material.
@@ -131,7 +152,8 @@ export class World {
 
     //Bloom effect
     const renderPass = new RenderPass(this.scene, this.camera);
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth / window.innerHeight), 2.0,1.0,0);
+    // FIXME: find a correct threshold value.
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth / window.innerHeight), 2.0,1.0,0.5);
     this.composer.addPass(renderPass);
     this.composer.addPass(bloomPass);
 
