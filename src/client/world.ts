@@ -65,12 +65,16 @@ export class World {
     this.scene.add(poolModel.scene);
 
 
+    // cast shadow
     const names = ["Body_Body_0", "Marble", "Tile", "Table", "PLant1", "Plant2"];
+    const enable_shadow = (mesh: THREE.Mesh) => {
+      if (mesh === null || mesh === undefined) return;
+      mesh.castShadow = mesh.receiveShadow = true;
+      mesh.children.forEach(enable_shadow);
+    };
     for (const name of names) {
       const obj = poolModel.scene.getObjectByName(name) as THREE.Mesh;
-      if (obj != null && obj != undefined) {
-        obj.castShadow = obj.receiveShadow = true;
-      }
+      enable_shadow(obj);
     }
 
     // The two lightbulbs of the lamp glb is an emissive material.
