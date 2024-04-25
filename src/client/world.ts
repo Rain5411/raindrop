@@ -7,6 +7,7 @@ import {UnrealBloomPass} from '/jsm/postprocessing/UnrealBloomPass.js'
 import { RenderPass } from '/jsm/postprocessing/RenderPass.js';
 
 import { Water } from "./waters.js";
+import { AABB, DepthPass } from "./pass/depth_pass.js";
 
 import rainVertexShader from "./shaders/rain_vertex.glsl";
 import rainFragmentShader from "./shaders/rain_frag.glsl";
@@ -22,6 +23,10 @@ export class World {
   private composer: EffectComposer;
   
   private lampLightIntensity: number;
+
+  private depthPass: DepthPass;
+  private bottom: number;
+  private top: number;
 
   // TODO: move particle system here.
   private water: Water;
@@ -61,7 +66,7 @@ export class World {
     
     center.y += size.y / 4.0;
 
-    this.water = new Water(this.scene, new THREE.Vector2(size.x, size.z), center);
+    // this.water = new Water(this.scene, new THREE.Vector2(size.x, size.z), center);
 
     // TODO: pass raindrop texture
   }
@@ -148,7 +153,12 @@ export class World {
       new THREE.Vector3(center.x + halfSize.x, center.y + halfSize.y, center.z + halfSize.z),
       new THREE.Vector3(center.x - halfSize.x, center.y + halfSize.y, center.z + halfSize.z),
     ];
+
+    const box: AABB = [ new THREE.Vector3(center.x - halfSize.x, center.y - halfSize.y, center.z - halfSize.z),
+      new THREE.Vector3(center.x + halfSize.x, center.y + halfSize.y, center.z + halfSize.z) ];
     console.log('Bounding Box Vertices:', vertices);
+    this.bottom = center.y - halfSize.y;
+    this.top = center.y + halfSize.y;
 
     //Bloom effect
     const renderPass = new RenderPass(this.scene, this.camera);
@@ -157,6 +167,8 @@ export class World {
     this.composer.addPass(renderPass);
     this.composer.addPass(bloomPass);
 
+    // depth pass
+    this.depthPass = new DepthPass(box);
   }
 
   private init_rain() {
@@ -230,10 +242,14 @@ export class World {
 
   public update() {
     requestAnimationFrame(this.update.bind(this));
-    this.raindropMaterial.uniforms.uTime.value =  this.clock.getElapsedTime();
-    this.controls.update();
-    this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
 
+    if (this.depthPass != null && this.depthPass != undefined) {
+      const depth = this.depthPass.get_texture(this.renderer, this.scene); // TODO
+
+      this.raindropMaterial.uniforms.uTime.value =  this.clock.getElapsedTime();
+      this.controls.update();
+      this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
+    }
   }
 
   public set_sunlight(dir: [number, number, number], intensity: number) {

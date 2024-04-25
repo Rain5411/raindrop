@@ -3,8 +3,6 @@ import * as THREE from "/build/three.module.js";
 import waterVertexShader from "./shaders/water_vertex.glsl";
 import waterFragmentShader from "./shaders/water_frag.glsl";
 
-const PI = 3.1415926535;
-
 export class Water {
   private mesh: THREE.Mesh;
   private material: THREE.Material;
@@ -18,7 +16,7 @@ export class Water {
 
     this.mesh = new THREE.Mesh(geometry, this.material);
     this.mesh.position.set(position.x, position.y, position.z);
-    this.mesh.rotateX(-PI / 2.0);
+    this.mesh.rotateX(-Math.PI / 2.0);
     scene.add(this.mesh);
   }
 }
