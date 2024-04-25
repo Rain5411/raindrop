@@ -17,7 +17,11 @@ void main() {
         
   float combinedIntensity = (intensity0 + intensity1);  // This part is to make sure that raindrops further away from the bulb has loweri ntensity.
 
+  float alpha = diffuseColor.a;
+  if (raindropPosition.y < -2.4) {
+    alpha = 0.0;
+  }
     
-  vec4 finalColor = vec4(diffuseColor.rgb * lightIntensityOnRaindrop * combinedIntensity, diffuseColor.a);
+  vec4 finalColor = vec4(diffuseColor.rgb * lightIntensityOnRaindrop * combinedIntensity, alpha);
   gl_FragColor = finalColor;
 }

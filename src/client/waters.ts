@@ -19,7 +19,6 @@ export class Water {
     this.mesh = new THREE.Mesh(geometry, this.material);
     this.mesh.position.set(position.x, position.y, position.z);
     this.mesh.rotateX(-PI / 2.0);
-
     scene.add(this.mesh);
   }
 }
