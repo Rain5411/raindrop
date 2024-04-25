@@ -28,8 +28,8 @@ export class World {
   private bottom: number;
   private top: number;
 
-  // TODO: move particle system here.
   private water: Water;
+  private rain: THREE.InstancedMesh; // TODO: move to another class
 
   constructor() {
     this.scene = new THREE.Scene();
@@ -52,8 +52,10 @@ export class World {
 
 
     document.body.appendChild(this.renderer.domElement);
+  }
 
-    this.load_scene();
+  public async setup() {
+    await this.load_scene();
     this.init_rain();
   }
 
@@ -66,7 +68,7 @@ export class World {
     
     center.y += size.y / 4.0;
 
-    // this.water = new Water(this.scene, new THREE.Vector2(size.x, size.z), center);
+    this.water = new Water(this.scene, new THREE.Vector2(size.x, size.z), center);
 
     // TODO: pass raindrop texture
   }
@@ -171,6 +173,9 @@ export class World {
     this.depthPass = new DepthPass(box);
   }
 
+  // private generate_pos(rand: THREE.Vector2): THREE.Vector3 {
+  // }
+
   private init_rain() {
     this.raindropMaterial = new THREE.ShaderMaterial({
       vertexShader: rainVertexShader,
@@ -194,6 +199,15 @@ export class World {
         uPointLightPositions: {
           value: [], 
         },
+        near: {
+          value: this.top
+        },
+        far: {
+          value: this.bottom
+        },
+        depth: {
+          value: null
+        }
       },
     });
 
@@ -205,16 +219,16 @@ export class World {
     const raindropGeometry = new THREE.CylinderGeometry(1, 1, 1, 6, 1, false);
 
     // InstancedMesh to create a lot of raindrops at once.
-    let rainObject = new THREE.InstancedMesh(raindropGeometry, this.raindropMaterial, numRaindrops);
+    this.rain = new THREE.InstancedMesh(raindropGeometry, this.raindropMaterial, numRaindrops);
     const initRainInner = () => {
-        const randNumsArray = new Float32Array(rainObject.count * 2);
+        const randNumsArray = new Float32Array(this.rain.count * 2);
         const randomNums = new THREE.InstancedBufferAttribute(randNumsArray, 2);
         raindropGeometry.setAttribute('aRandom', randomNums);
-        this.raindropMaterial.uniforms.uCount.value = rainObject.count;
+        this.raindropMaterial.uniforms.uCount.value = this.rain.count;
         for (let i = 0; i < randNumsArray.length; i++) {
             randNumsArray[i] = Math.random();
         }
-        this.scene.add(rainObject);
+        this.scene.add(this.rain);
     };
     initRainInner();
     
@@ -230,33 +244,33 @@ export class World {
     this.raindropMaterial.uniforms.uPointLightPositions.value = pointLightPositions;
 
 
-    if (numRaindrops < rainObject.count) {
-        rainObject.count = numRaindrops;
+    if (numRaindrops < this.rain.count) {
+      this.rain.count = numRaindrops;
     }
-    else if (numRaindrops > rainObject.count) {
-        this.scene.remove(rainObject);
-        rainObject = new THREE.InstancedMesh(raindropGeometry, this.raindropMaterial, numRaindrops);
+    else if (numRaindrops > this.rain.count) {
+        this.scene.remove(this.rain);
+        this.rain = new THREE.InstancedMesh(raindropGeometry, this.raindropMaterial, numRaindrops);
         initRainInner();
     }
   }
 
   public update() {
     requestAnimationFrame(this.update.bind(this));
+    this.renderer.clear();
 
-    if (this.depthPass != null && this.depthPass != undefined) {
-      const depth = this.depthPass.get_texture(this.renderer, this.scene); // TODO
+    this.rain.visible = false;
+    const depth = this.depthPass.render(this.renderer, this.scene);
+    this.rain.visible = true;
 
-      this.raindropMaterial.uniforms.uTime.value =  this.clock.getElapsedTime();
-      this.controls.update();
-      this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
-    }
+    this.raindropMaterial.uniforms.uTime.value = this.clock.getElapsedTime();
+    this.raindropMaterial.uniforms.depth.value = depth;
+    this.controls.update();
+    this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
   }
 
   public set_sunlight(dir: [number, number, number], intensity: number) {
     const dir_v = new THREE.Vector3(dir[0], dir[1], dir[2]);
 
-
-    
     // This is going to be the sunlight? Parallel light.
     // TODO. Let users adjust this via UI to simulate morning, noon, afternoon, night.
     const directionaLight = new THREE.DirectionalLight(0xffffff, 1.0);
