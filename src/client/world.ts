@@ -82,7 +82,7 @@ export class World {
     this.water.set_view_dir(view);
 
     const plane = new THREE.Plane();
-    plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 1, 0), center.add(new THREE.Vector3(0, 0.1, 0)));
+    plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 1, 0), center.clone().add(new THREE.Vector3(0, size.y / 4.0 + 0.1, 0)));
     this.reflectPass = new ReflectionPass(this.camera, plane);
 
     // TODO: pass raindrop texture
@@ -294,7 +294,7 @@ export class World {
 
     this.raindropMaterial.uniforms.uTime.value = this.clock.getElapsedTime();
     this.raindropMaterial.uniforms.depth.value = depth;
-    this.water.set_textures(opaque, water_depth);
+    this.water.set_textures(opaque, water_depth, reflected);
     this.controls.update();
     this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
   }

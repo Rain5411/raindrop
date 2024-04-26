@@ -3,6 +3,7 @@
 uniform vec3 water_color;
 uniform sampler2D opaque_texture;
 uniform sampler2D depth_texture;
+uniform sampler2D reflected_texture;
 
 varying vec3 norm;
 varying vec3 view;
@@ -26,7 +27,7 @@ void main() {
     uv = refract_uv;
   }
 
-  vec3 refract_color = texture2D(opaque_texture, uv).rgb;
-  vec3 reflect_color = water_color; // TODO
+  vec3 refract_color = texture2D(opaque_texture, uv).rgb * water_color;
+  vec3 reflect_color = texture2D(reflected_texture, vec2(screen_uv.s, 1.0 - screen_uv.t)).rgb;
   gl_FragColor = vec4(mix(refract_color, reflect_color, fresnel), 1.0);
 }

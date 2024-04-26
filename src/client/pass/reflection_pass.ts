@@ -33,11 +33,10 @@ export class ReflectionPass {
     const project = new THREE.Vector3();
     this.plane.projectPoint(camera.position, project);
     const delta = project.sub(camera.position).multiplyScalar(2.0);
-    const target = camera.position.clone();
-    target.add(delta);
+    const target = camera.position.clone().add(delta);
     this.camera.position.set(target.x, target.y, target.z);
 
-    let view = new THREE.Vector3();
+    const view = new THREE.Vector3();
     this.camera.getWorldDirection(view);
     this.camera.lookAt(view);
   }
