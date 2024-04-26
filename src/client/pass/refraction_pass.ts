@@ -12,7 +12,7 @@ export class RefractionPass {
     this.target.texture.magFilter = THREE.NearestFilter;
     this.target.texture.generateMipmaps = false;
     this.target.stencilBuffer = false;
-    this.target.depthBuffer = false;
+    this.target.depthBuffer = true;
   }
 
   public render(renderer: THREE.WebGLRenderer, scene: THREE.Scene): THREE.Texture {
