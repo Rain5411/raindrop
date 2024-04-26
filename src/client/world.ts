@@ -8,6 +8,7 @@ import { RenderPass } from '/jsm/postprocessing/RenderPass.js';
 
 import { Water } from "./waters.js";
 import { AABB, DepthPass } from "./pass/depth_pass.js";
+import { RefractionPass } from "./pass/refraction_pass.js";
 
 import rainVertexShader from "./shaders/rain_vertex.glsl";
 import rainFragmentShader from "./shaders/rain_frag.glsl";
@@ -28,8 +29,12 @@ export class World {
   private bottom: number;
   private top: number;
 
+  private refracPass: RefractionPass;
+
   private water: Water;
   private rain: THREE.InstancedMesh; // TODO: move to another class
+
+  private boxHelper: THREE.BoxHelper;
 
   constructor() {
     this.scene = new THREE.Scene();
@@ -41,6 +46,7 @@ export class World {
     this.raindropMaterial = new THREE.ShaderMaterial;
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.composer = new EffectComposer(this.renderer);
+    this.refracPass = new RefractionPass(this.camera);
     
 
     this.lampLightIntensity = 5;  //suggested max=5 
@@ -68,7 +74,7 @@ export class World {
     
     center.y += size.y / 4.0;
 
-    this.water = new Water(this.scene, new THREE.Vector2(size.x, size.z), center);
+    this.water = new Water(this.scene, new THREE.Vector2(size.x - 0.5, size.z - 0.5), center);
 
     // TODO: pass raindrop texture
   }
@@ -134,8 +140,8 @@ export class World {
 
     // For debugging, draw a yellow bounding box around our poolmodel scene.
     const boundingBox = new THREE.Box3().setFromObject(poolModel.scene);
-    const boxHelper = new THREE.BoxHelper(poolModel.scene, 0xffff00);
-    this.scene.add(boxHelper);
+    this.boxHelper = new THREE.BoxHelper(poolModel.scene, 0xffff00);
+    this.scene.add(this.boxHelper);
 
 
     // For debugging, log the coordinate values of the 8 verticies of the bounding box of our pool model scene. This tells exact size of our "world"
@@ -165,7 +171,7 @@ export class World {
     //Bloom effect
     const renderPass = new RenderPass(this.scene, this.camera);
     // FIXME: find a correct threshold value.
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth / window.innerHeight), 2.0,1.0,0.5);
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth / window.innerHeight), 2.0,1.0,10);
     this.composer.addPass(renderPass);
     this.composer.addPass(bloomPass);
 
@@ -258,12 +264,24 @@ export class World {
     requestAnimationFrame(this.update.bind(this));
     this.renderer.clear();
 
+    this.boxHelper.visible = false;
     this.rain.visible = false;
     const depth = this.depthPass.render(this.renderer, this.scene);
+
+    this.water.set_visible(false);
+    const opaque = this.refracPass.render(this.renderer, this.scene);
+    this.water.set_visible(true);
+
     this.rain.visible = true;
+    this.boxHelper.visible = true;
+
+    let view = new THREE.Vector3();
+    this.camera.getWorldDirection(view);
+    this.water.set_view_dir(view);
 
     this.raindropMaterial.uniforms.uTime.value = this.clock.getElapsedTime();
     this.raindropMaterial.uniforms.depth.value = depth;
+    this.water.set_opaque_texture(opaque);
     this.controls.update();
     this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
   }
