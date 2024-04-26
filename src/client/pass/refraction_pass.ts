@@ -4,7 +4,7 @@ export class RefractionPass {
   private camera: THREE.PerspectiveCamera;
   private target: THREE.WebGLRenderTarget;
 
-  constructor(camera) {
+  constructor(camera: THREE.PerspectiveCamera) {
     this.camera = camera; // Reuse the same camera
     this.target = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
     this.target.texture.format = THREE.RGBAFormat;

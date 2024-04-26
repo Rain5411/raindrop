@@ -9,6 +9,7 @@ import { RenderPass } from '/jsm/postprocessing/RenderPass.js';
 import { Water } from "./waters.js";
 import { AABB, DepthPass } from "./pass/depth_pass.js";
 import { RefractionPass } from "./pass/refraction_pass.js";
+import { ReflectionPass } from "./pass/reflection_pass.js";
 
 import rainVertexShader from "./shaders/rain_vertex.glsl";
 import rainFragmentShader from "./shaders/rain_frag.glsl";
@@ -30,6 +31,7 @@ export class World {
   private top: number;
 
   private refracPass: RefractionPass;
+  private reflectPass: ReflectionPass;
 
   private water: Water;
   private rain: THREE.InstancedMesh; // TODO: move to another class
@@ -78,6 +80,10 @@ export class World {
     let view = new THREE.Vector3();
     this.camera.getWorldDirection(view);
     this.water.set_view_dir(view);
+
+    const plane = new THREE.Plane();
+    plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 1, 0), center.add(new THREE.Vector3(0, 0.1, 0)));
+    this.reflectPass = new ReflectionPass(this.camera, plane);
 
     // TODO: pass raindrop texture
   }
@@ -276,6 +282,10 @@ export class World {
     this.water.set_visible(true);
 
     // this.rain.visible = true;
+
+    this.reflectPass.update_camera(this.camera);
+    const reflected = this.reflectPass.render(this.renderer, this.scene);
+
     this.boxHelper.visible = true;
 
     let view = new THREE.Vector3();
