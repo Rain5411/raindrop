@@ -186,6 +186,33 @@ export class World {
 
     // depth pass
     this.depthPass = new DepthPass(box);
+
+    await this.load_sky_box();
+  }
+
+  private async load_sky_box() {
+    var picts = [
+      './skybox/px.jpg',
+      './skybox/nx.jpg',
+      './skybox/py.jpg',
+      './skybox/ny.jpg',
+      './skybox/pz.jpg',
+      './skybox/nz.jpg'
+    ]
+
+    const loader = new THREE.TextureLoader()
+    const skyGeometry = new THREE.BoxGeometry(1000, 1000, 1000)
+    const materialArray = []
+    for (let i = 0; i < 6; i++)
+      materialArray.push(
+        new THREE.MeshBasicMaterial({
+          map: loader.load(picts[i]),
+          side: THREE.BackSide
+        })
+      )
+
+    const skybox = new THREE.Mesh(skyGeometry, materialArray) 
+    this.scene.add(skybox)
   }
 
   // private generate_pos(rand: THREE.Vector2): THREE.Vector3 {

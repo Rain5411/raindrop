@@ -93,6 +93,7 @@ dist/client/*
 dist/server/*
 !dist/client/index.html
 !dist/client/model.glb
+!dist/client/skybox/
 
 # Gatsby files
 .cache/
