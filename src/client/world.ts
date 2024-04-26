@@ -75,6 +75,9 @@ export class World {
     center.y += size.y / 4.0;
 
     this.water = new Water(this.scene, new THREE.Vector2(size.x - 0.5, size.z - 0.5), center);
+    let view = new THREE.Vector3();
+    this.camera.getWorldDirection(view);
+    this.water.set_view_dir(view);
 
     // TODO: pass raindrop texture
   }
@@ -272,7 +275,7 @@ export class World {
     const opaque = this.refracPass.render(this.renderer, this.scene);
     this.water.set_visible(true);
 
-    this.rain.visible = true;
+    // this.rain.visible = true;
     this.boxHelper.visible = true;
 
     let view = new THREE.Vector3();
