@@ -16,16 +16,17 @@ float readDepth() {
 }
 
 void main() {
-  float fresnel = mix(0.5, 0.95, dot(norm, -view));
+  float fresnel = mix(0.1, 0.95, 1.0 - dot(norm, -view));
   
   vec2 uv = vec2(0.0, 0.0);
-  if (water_depth > readDepth()) {
-    uv = screen_uv;
+  if (water_depth > readDepth()) { // If we are sampling thing above water
+    uv = screen_uv; // use the original uv instead of refracted uv
   }
   else {
     uv = refract_uv;
   }
 
   vec3 refract_color = texture2D(opaque_texture, uv).rgb;
-  gl_FragColor = vec4(mix(water_color, refract_color, fresnel), 1.0);
+  vec3 reflect_color = water_color; // TODO
+  gl_FragColor = vec4(mix(refract_color, reflect_color, fresnel), 1.0);
 }

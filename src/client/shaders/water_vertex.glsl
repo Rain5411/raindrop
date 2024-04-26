@@ -6,7 +6,7 @@ const float IOR_WATER = 1.333;
 varying vec3 norm;
 varying vec3 view;
 varying vec2 refract_uv;
-varying vec2 screen_uv; // fallback if the sample is out of range.
+varying vec2 screen_uv;
 varying float water_depth;
 
 void main() {
