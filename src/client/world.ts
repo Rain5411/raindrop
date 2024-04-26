@@ -272,7 +272,7 @@ export class World {
     const depth = this.depthPass.render(this.renderer, this.scene);
 
     this.water.set_visible(false);
-    const opaque = this.refracPass.render(this.renderer, this.scene);
+    const [opaque, water_depth] = this.refracPass.render(this.renderer, this.scene);
     this.water.set_visible(true);
 
     // this.rain.visible = true;
@@ -284,7 +284,7 @@ export class World {
 
     this.raindropMaterial.uniforms.uTime.value = this.clock.getElapsedTime();
     this.raindropMaterial.uniforms.depth.value = depth;
-    this.water.set_opaque_texture(opaque);
+    this.water.set_textures(opaque, water_depth);
     this.controls.update();
     this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
   }

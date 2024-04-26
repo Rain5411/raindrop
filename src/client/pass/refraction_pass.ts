@@ -13,13 +13,16 @@ export class RefractionPass {
     this.target.texture.generateMipmaps = false;
     this.target.stencilBuffer = false;
     this.target.depthBuffer = true;
+    this.target.depthTexture = new THREE.DepthTexture(undefined, undefined);
+    this.target.depthTexture.format = THREE.DepthFormat;
+    this.target.depthTexture.type = THREE.UnsignedShortType;
   }
 
-  public render(renderer: THREE.WebGLRenderer, scene: THREE.Scene): THREE.Texture {
+  public render(renderer: THREE.WebGLRenderer, scene: THREE.Scene): [THREE.Texture, THREE.DepthTexture] {
     renderer.setRenderTarget(this.target);
     renderer.render(scene, this.camera);
     renderer.setRenderTarget(null);
 
-    return this.target.texture;
+    return [this.target.texture, this.target.depthTexture];
   }
 }

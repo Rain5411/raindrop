@@ -23,6 +23,9 @@ export class Water {
         },
         opaque_texture: {
           value: null
+        },
+        depth_texture: {
+          value: null
         }
       }
     });
@@ -41,8 +44,9 @@ export class Water {
     this.material.uniforms.view_dir.value = dir;
   }
 
-  public set_opaque_texture(txt: THREE.Texture) {
-    this.material.uniforms.opaque_texture.value = txt;
+  public set_textures(opaque: THREE.Texture, depth: THREE.DepthTexture) {
+    this.material.uniforms.opaque_texture.value = opaque;
+    this.material.uniforms.depth_texture.value = depth;
   }
 
   public set_visible(vis: boolean) {
