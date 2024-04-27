@@ -10,11 +10,16 @@ varying vec2 refract_uv;
 varying vec2 screen_uv;
 varying float water_depth;
 
+float unpack(vec4 rgbaDepth) {
+  const vec4 bitShift = vec4(1.0, 1.0/256.0, 1.0/(256.0*256.0), 1.0/(256.0*256.0*256.0));
+  return dot(rgbaDepth, bitShift);
+}
+
 void main() {
   norm = normalize((modelViewMatrix * vec4(0.0, 1.0, 0.0, 0.0)).xyz); // TODO
   view = normalize((modelViewMatrix * vec4(view_dir, 0.0)).xyz);
   vec3 refract_dir = normalize(refract(view, norm, IOR_AIR / IOR_WATER));
-  vec3 hp = position;
+  vec3 hp = vec3(position.x, position.y, unpack(texture2D(heights, uv)));
   vec4 target = projectionMatrix * (modelViewMatrix * vec4(hp, 1.0) + vec4(refract_dir, 0.0) - vec4(view, 0.0));
 
   refract_uv = (target.xy / target.w) * 0.5 + 0.5;

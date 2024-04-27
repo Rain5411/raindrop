@@ -13,14 +13,6 @@ export class RipplePass extends Pass<THREE.OrthographicCamera, THREE.Texture> {
   private water_plane: THREE.Mesh;
   private heights: THREE.Texture;
 
-  // private pack(v: number): THREE.Vector4 {
-  //   const shift = new THREE.Vector4(1.0, 256.0, 256.0 * 256.0, 256.0 * 256.0 * 256.0);
-  //   const mask = new THREE.Vector4(1.0 / 256.0, 1.0 / 256.0, 1.0 / 256.0, 0.0);
-  //   let res = new THREE.Vector4(v * shift.x % 1, v * shift.y % 1, v * shift.z % 1, v * shift.w % 1);
-  //   res = res.sub(new THREE.Vector4(res.y * mask.x, res.z * mask.y, res.w * mask.z, res.w * mask.w));
-  //   return res;
-  // }
-
   constructor(box: AABB, raindrop: THREE.Mesh, water_plane: THREE.Mesh) {
     super();
     this.raindrop = raindrop;
@@ -38,7 +30,6 @@ export class RipplePass extends Pass<THREE.OrthographicCamera, THREE.Texture> {
 
     const size = window.innerWidth * window.innerHeight;
     const init_data = new Uint8Array(4 * size);
-    // const init_val = this.pack(0.0);
     for (let i = 0; i < size; ++i) {
       const stride = i * 4;
       init_data[stride] = 0;
@@ -79,19 +70,29 @@ export class RipplePass extends Pass<THREE.OrthographicCamera, THREE.Texture> {
   }
 
   public update_rain(raindrop: THREE.Mesh) {
-    this.raindrop = raindrop;
+    if (raindrop != null && raindrop != undefined) {
+      this.raindrop = raindrop.clone(true);
+      this.raindrop.visible = true;
+      if (raindrop.material instanceof THREE.Material) {
+        this.raindrop.material = raindrop.material.clone();
+      }
+     
+      if (this.raindrop.material instanceof THREE.ShaderMaterial) {
+        this.raindrop.material.fragmentShader = dummyFragmentShader;
+      }
+    }
+    
   }
 
   public override render(renderer: THREE.WebGLRenderer, scene: THREE.Scene): THREE.Texture {
     // get the raindrop position texture
-    if (this.raindrop.material instanceof THREE.ShaderMaterial) {
-      const fragShader = this.raindrop.material.fragmentShader;
-      this.raindrop.material.fragmentShader = dummyFragmentShader;
-
+    if (this.raindrop != undefined && this.raindrop != null && this.raindrop.material instanceof THREE.ShaderMaterial) {
       renderer.setRenderTarget(this.target);
       renderer.render(this.raindrop, this.camera);
       this.ripple_material.uniforms.raindrop.value = this.target.depthTexture;
-      this.raindrop.material.fragmentShader = fragShader;
+    }
+    else {
+      return this.heights;
     }
 
     // iteration

@@ -90,7 +90,7 @@ export class World {
     const box: AABB = [ new THREE.Vector3(center.x - halfSize.x, center.y - halfSize.y, center.z - halfSize.z),
       new THREE.Vector3(center.x + halfSize.x, top, center.z + halfSize.z) ];
 
-    this.ripplePass = new RipplePass(box, this.rain, this.water.get_plane());
+    this.ripplePass = new RipplePass(box, null, this.water.get_plane());
   }
 
   private async load_scene() {
@@ -314,6 +314,9 @@ export class World {
     this.reflectPass.update_camera(this.camera, this.controls.target.clone());
     const reflected = this.reflectPass.render(this.renderer, this.scene);
 
+    this.ripplePass.update_rain(this.rain);
+    const heights = this.ripplePass.render(this.renderer, null);
+
     this.water.set_visible(true);
     this.rain.visible = true;
     this.boxHelper.visible = true;
@@ -321,12 +324,9 @@ export class World {
     const view = this.controls.target.clone();
     this.water.set_view_dir(view.sub(this.camera.position));
 
-    // this.ripplePass.update_rain(this.rain);
-    // const heights = this.ripplePass.render(this.renderer, null);
-
     this.raindropMaterial.uniforms.uTime.value = this.clock.getElapsedTime();
     this.raindropMaterial.uniforms.depth.value = depth;
-    this.water.set_textures(opaque, water_depth, reflected, null);
+    this.water.set_textures(opaque, water_depth, reflected, heights);
     this.controls.update();
     this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
   }
