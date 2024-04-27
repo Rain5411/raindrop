@@ -1,25 +1,18 @@
 import * as THREE from "/build/three.module.js";
 
-export class ReflectionPass {
-  private camera: THREE.PerspectiveCamera;
-  private target: THREE.WebGLRenderTarget;
+import { Pass } from "./pass.js";
+
+export class ReflectionPass extends Pass<THREE.PerspectiveCamera, THREE.Texture> {
   private plane: THREE.Plane;
 
   constructor(camera: THREE.PerspectiveCamera, plane: THREE.Plane) {
+    super();
     this.camera = new THREE.PerspectiveCamera(camera.fov, camera.aspect, camera.near, camera.far);
     this.plane = plane;
     this.update_camera(camera);
-
-    this.target = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
-    this.target.texture.format = THREE.RGBAFormat;
-    this.target.texture.minFilter = THREE.NearestFilter;
-    this.target.texture.magFilter = THREE.NearestFilter;
-    this.target.texture.generateMipmaps = false;
-    this.target.stencilBuffer = false;
-    this.target.depthBuffer = true;
   }
 
-  public render(renderer: THREE.WebGLRenderer, scene: THREE.Scene): THREE.Texture {
+  public override render(renderer: THREE.WebGLRenderer, scene: THREE.Scene): THREE.Texture {
     renderer.clippingPlanes = [ this.plane ];
     renderer.setRenderTarget(this.target);
     renderer.render(scene, this.camera);

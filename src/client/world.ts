@@ -187,7 +187,7 @@ export class World {
     // depth pass
     this.depthPass = new DepthPass(box);
 
-    await this.load_sky_box();
+    // await this.load_sky_box();
   }
 
   private async load_sky_box() {
@@ -256,7 +256,7 @@ export class World {
 
     // number of raindrops in the scene. 
     // TODO, this value will be higher with heavier rain, change based on UI selection.
-    const numRaindrops = 20000;
+    const numRaindrops = 2000;
 
     const raindropGeometry = new THREE.CylinderGeometry(1, 1, 1, 6, 1, false);
 
@@ -305,14 +305,13 @@ export class World {
     const depth = this.depthPass.render(this.renderer, this.scene);
 
     this.water.set_visible(false);
+
     const [opaque, water_depth] = this.refracPass.render(this.renderer, this.scene);
-    this.water.set_visible(true);
-
-    // this.rain.visible = true;
-
     this.reflectPass.update_camera(this.camera);
     const reflected = this.reflectPass.render(this.renderer, this.scene);
 
+    this.water.set_visible(true);
+    this.rain.visible = true;
     this.boxHelper.visible = true;
 
     let view = new THREE.Vector3();
