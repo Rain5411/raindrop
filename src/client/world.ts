@@ -80,13 +80,12 @@ export class World {
     const halfSize = size.clone().multiplyScalar(0.5);
 
     this.water = new Water(this.scene, new THREE.Vector2(size.x - 0.5, size.z - 0.5), center);
-    let view = new THREE.Vector3();
-    this.camera.getWorldDirection(view);
-    this.water.set_view_dir(view);
+    const view = this.controls.target.clone();
+    this.water.set_view_dir(view.sub(this.camera.position));
 
     const plane = new THREE.Plane();
     plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 1, 0), center.clone().add(new THREE.Vector3(0, size.y / 4.0 + 0.1, 0)));
-    this.reflectPass = new ReflectionPass(this.camera, plane);
+    this.reflectPass = new ReflectionPass(this.camera, plane, this.controls.target);
 
     const box: AABB = [ new THREE.Vector3(center.x - halfSize.x, center.y - halfSize.y, center.z - halfSize.z),
       new THREE.Vector3(center.x + halfSize.x, top, center.z + halfSize.z) ];
@@ -312,23 +311,22 @@ export class World {
     this.water.set_visible(false);
 
     const [opaque, water_depth] = this.refracPass.render(this.renderer, this.scene);
-    this.reflectPass.update_camera(this.camera);
+    this.reflectPass.update_camera(this.camera, this.controls.target.clone());
     const reflected = this.reflectPass.render(this.renderer, this.scene);
 
     this.water.set_visible(true);
     this.rain.visible = true;
     this.boxHelper.visible = true;
 
-    let view = new THREE.Vector3();
-    this.camera.getWorldDirection(view);
-    this.water.set_view_dir(view);
+    const view = this.controls.target.clone();
+    this.water.set_view_dir(view.sub(this.camera.position));
 
-    this.ripplePass.update_rain(this.rain);
-    const heights = this.ripplePass.render(this.renderer, null);
+    // this.ripplePass.update_rain(this.rain);
+    // const heights = this.ripplePass.render(this.renderer, null);
 
     this.raindropMaterial.uniforms.uTime.value = this.clock.getElapsedTime();
     this.raindropMaterial.uniforms.depth.value = depth;
-    this.water.set_textures(opaque, water_depth, reflected, heights);
+    this.water.set_textures(opaque, water_depth, reflected, null);
     this.controls.update();
     this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
   }
