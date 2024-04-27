@@ -10,13 +10,17 @@ export abstract class Pass<TCamera extends THREE.Camera, TResult> implements IRe
 
   constructor() {
     this.target = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
-    this.target.texture.format = THREE.RGBAFormat;
-    this.target.texture.minFilter = THREE.NearestFilter;
-    this.target.texture.magFilter = THREE.NearestFilter;
-    this.target.texture.generateMipmaps = false;
-    this.target.stencilBuffer = false;
-    this.target.depthBuffer = true;
-    this.target.stencilBuffer = false;
+    this.init_target(this.target);
+  }
+
+  protected init_target(target: THREE.WebGLRenderTarget) {
+    target.texture.format = THREE.RGBAFormat;
+    target.texture.minFilter = THREE.NearestFilter;
+    target.texture.magFilter = THREE.NearestFilter;
+    target.texture.generateMipmaps = false;
+    target.stencilBuffer = false;
+    target.depthBuffer = true;
+    target.stencilBuffer = false;
   }
 
   render(renderer: THREE.WebGLRenderer, scene: THREE.Scene): TResult {
