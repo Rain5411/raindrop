@@ -3,8 +3,9 @@ import * as THREE from "/build/three.module.js";
 import { AABB } from "./depth_pass.js";
 import { Pass } from "./pass.js";
 
-import rippleVertexShader from "./shaders/ripple_vertex.glsl";
-import rippleFragmentShader from "./shaders/ripple_frag.glsl";
+import rippleVertexShader from "../shaders/ripple_vertex.glsl";
+import rippleFragmentShader from "../shaders/ripple_frag.glsl";
+import dummyFragmentShader from "../shaders/dummy_frag.glsl"
 
 export class RipplePass extends Pass<THREE.OrthographicCamera, THREE.Texture> {
   private ripple_material: THREE.ShaderMaterial;
@@ -56,11 +57,21 @@ export class RipplePass extends Pass<THREE.OrthographicCamera, THREE.Texture> {
     });
   }
 
+  public update_rain(raindrop: THREE.Mesh) {
+    this.raindrop = raindrop;
+  }
+
   public override render(renderer: THREE.WebGLRenderer, scene: THREE.Scene): THREE.Texture {
     // get the raindrop position texture
-    renderer.setRenderTarget(this.target);
-    renderer.render(this.raindrop, this.camera);
-    this.ripple_material.uniforms.raindrop.value = this.target.depthTexture;
+    if (this.raindrop.material instanceof THREE.ShaderMaterial) {
+      const fragShader = this.raindrop.material.fragmentShader;
+      this.raindrop.material.fragmentShader = dummyFragmentShader;
+
+      renderer.setRenderTarget(this.target);
+      renderer.render(this.raindrop, this.camera);
+      this.ripple_material.uniforms.raindrop.value = this.target.depthTexture;
+      this.raindrop.material.fragmentShader = fragShader;
+    }
 
     // iteration
     const water_material = this.water_plane.material;

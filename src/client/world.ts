@@ -10,6 +10,7 @@ import { Water } from "./waters.js";
 import { AABB, DepthPass } from "./pass/depth_pass.js";
 import { RefractionPass } from "./pass/refraction_pass.js";
 import { ReflectionPass } from "./pass/reflection_pass.js";
+import { RipplePass } from "./pass/ripple_pass.js";
 
 import rainVertexShader from "./shaders/rain_vertex.glsl";
 import rainFragmentShader from "./shaders/rain_frag.glsl";
@@ -32,6 +33,7 @@ export class World {
 
   private refracPass: RefractionPass;
   private reflectPass: ReflectionPass;
+  private ripplePass: RipplePass;
 
   private water: Water;
   private rain: THREE.InstancedMesh; // TODO: move to another class
@@ -67,7 +69,7 @@ export class World {
     this.init_rain();
   }
 
-  private load_water(pool: THREE.Mesh) {
+  private load_water(pool: THREE.Mesh, top: number) {
     const boundingBox = new THREE.Box3().setFromObject(pool);
     const center = new THREE.Vector3();
     const size = new THREE.Vector3();
@@ -75,6 +77,7 @@ export class World {
     boundingBox.getSize(size);
     
     center.y += size.y / 4.0;
+    const halfSize = size.clone().multiplyScalar(0.5);
 
     this.water = new Water(this.scene, new THREE.Vector2(size.x - 0.5, size.z - 0.5), center);
     let view = new THREE.Vector3();
@@ -85,7 +88,10 @@ export class World {
     plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 1, 0), center.clone().add(new THREE.Vector3(0, size.y / 4.0 + 0.1, 0)));
     this.reflectPass = new ReflectionPass(this.camera, plane);
 
-    // TODO: pass raindrop texture
+    const box: AABB = [ new THREE.Vector3(center.x - halfSize.x, center.y - halfSize.y, center.z - halfSize.z),
+      new THREE.Vector3(center.x + halfSize.x, top, center.z + halfSize.z) ];
+
+    this.ripplePass = new RipplePass(box, this.rain, this.water.get_plane());
   }
 
   private async load_scene() {
@@ -102,23 +108,6 @@ export class World {
     if (poolModelScene)
         poolModelScene.visible = true;
     this.scene.add(poolModel.scene);
-
-
-    // cast shadow
-    const names = ["Body_Body_0", "Marble", "Tile", "Table", "PLant1", "Plant2"];
-    const enable_shadow = (mesh: THREE.Mesh) => {
-      if (mesh === null || mesh === undefined) return;
-      mesh.castShadow = mesh.receiveShadow = true;
-      mesh.children.forEach(enable_shadow);
-    };
-    for (const name of names) {
-      const obj = poolModel.scene.getObjectByName(name) as THREE.Mesh;
-      enable_shadow(obj);
-
-      if (name === "Tile") {
-        this.load_water(obj);
-      }
-    }
 
     // The two lightbulbs of the lamp glb is an emissive material.
     // Emissive material shares same uuid left and right, so modifying one will change emissiveIntensity of both.
@@ -186,6 +175,22 @@ export class World {
 
     // depth pass
     this.depthPass = new DepthPass(box);
+
+    // cast shadow
+    const names = ["Body_Body_0", "Marble", "Tile", "Table", "PLant1", "Plant2"];
+    const enable_shadow = (mesh: THREE.Mesh) => {
+      if (mesh === null || mesh === undefined) return;
+      mesh.castShadow = mesh.receiveShadow = true;
+      mesh.children.forEach(enable_shadow);
+    };
+    for (const name of names) {
+      const obj = poolModel.scene.getObjectByName(name) as THREE.Mesh;
+      enable_shadow(obj);
+
+      if (name === "Tile") {
+        this.load_water(obj, center.y + halfSize.y);
+      }
+    }
 
     // await this.load_sky_box();
   }
@@ -317,6 +322,9 @@ export class World {
     let view = new THREE.Vector3();
     this.camera.getWorldDirection(view);
     this.water.set_view_dir(view);
+
+    this.ripplePass.update_rain(this.rain);
+    const heights = this.ripplePass.render(this.renderer, null);
 
     this.raindropMaterial.uniforms.uTime.value = this.clock.getElapsedTime();
     this.raindropMaterial.uniforms.depth.value = depth;

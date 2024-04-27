@@ -56,4 +56,8 @@ export class Water {
   public set_visible(vis: boolean) {
     this.mesh.visible = vis;
   }
+
+  public get_plane() {
+    return this.mesh;
+  }
 }

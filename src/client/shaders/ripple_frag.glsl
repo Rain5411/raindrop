@@ -1,3 +1,5 @@
+#include <packing>
+
 uniform sampler2D raindrops;
 uniform sampler2D heights;
 uniform bool has_drop;
@@ -6,11 +8,11 @@ uniform float far;
 uniform float damping;
 uniform float rate;
 
-varying vec2 uv;
+varying vec2 screen_uv;
 varying float depth;
 
 float readDepth() {
-  float z = texture2D(raindrops, uv).x;
+  float z = texture2D(raindrops, screen_uv).x;
   return orthographicDepthToViewZ(z, 1.0, near - far + 1.0);
 }
 
@@ -40,17 +42,17 @@ float shallow_wave(float old) {
   const vec2 dy = vec2(0.0, 0.01);
 
   float delta = 0.0;
-  if (check(uv + dx)) {
-    delta += rate * (get_h(uv + dx) - old);
+  if (check(screen_uv + dx)) {
+    delta += rate * (get_h(screen_uv + dx) - old);
   }
-  if (check(uv - dx)) {
-    delta += rate * (get_h(uv - dx) - old);
+  if (check(screen_uv - dx)) {
+    delta += rate * (get_h(screen_uv - dx) - old);
   }
-  if (check(uv + dy)) {
-    delta += rate * (get_h(uv + dy) - old);
+  if (check(screen_uv + dy)) {
+    delta += rate * (get_h(screen_uv + dy) - old);
   }
-  if (check(uv - dy)) {
-    delta += rate * (get_h(uv - dy) - old);
+  if (check(screen_uv - dy)) {
+    delta += rate * (get_h(screen_uv - dy) - old);
   }
 
   float new = old + delta * rate;
@@ -58,7 +60,7 @@ float shallow_wave(float old) {
 }
 
 void main() {
-  float height = get_h(uv);
+  float height = get_h(screen_uv);
   if (has_drop && readDepth() <= depth) {
     height += 0.05; // TODO: uniform?
   }
