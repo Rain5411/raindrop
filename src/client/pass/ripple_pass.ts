@@ -13,6 +13,14 @@ export class RipplePass extends Pass<THREE.OrthographicCamera, THREE.Texture> {
   private water_plane: THREE.Mesh;
   private heights: THREE.Texture;
 
+  // private pack(v: number): THREE.Vector4 {
+  //   const shift = new THREE.Vector4(1.0, 256.0, 256.0 * 256.0, 256.0 * 256.0 * 256.0);
+  //   const mask = new THREE.Vector4(1.0 / 256.0, 1.0 / 256.0, 1.0 / 256.0, 0.0);
+  //   let res = new THREE.Vector4(v * shift.x % 1, v * shift.y % 1, v * shift.z % 1, v * shift.w % 1);
+  //   res = res.sub(new THREE.Vector4(res.y * mask.x, res.z * mask.y, res.w * mask.z, res.w * mask.w));
+  //   return res;
+  // }
+
   constructor(box: AABB, raindrop: THREE.Mesh, water_plane: THREE.Mesh) {
     super();
     this.raindrop = raindrop;
@@ -27,6 +35,19 @@ export class RipplePass extends Pass<THREE.OrthographicCamera, THREE.Texture> {
     this.target.depthTexture = new THREE.DepthTexture(undefined, undefined);
     this.target.depthTexture.format = THREE.DepthFormat;
     this.target.depthTexture.type = THREE.UnsignedShortType;
+
+    const size = window.innerWidth * window.innerHeight;
+    const init_data = new Uint8Array(4 * size);
+    // const init_val = this.pack(0.0);
+    for (let i = 0; i < size; ++i) {
+      const stride = i * 4;
+      init_data[stride] = 0;
+      init_data[stride + 1] = 0;
+      init_data[stride + 2] = 0;
+      init_data[stride + 3] = 0 ;
+    }
+
+    this.heights = new THREE.DataTexture(init_data);
 
     this.ripple_material = new THREE.ShaderMaterial({
       vertexShader: rippleVertexShader,

@@ -328,7 +328,7 @@ export class World {
 
     this.raindropMaterial.uniforms.uTime.value = this.clock.getElapsedTime();
     this.raindropMaterial.uniforms.depth.value = depth;
-    this.water.set_textures(opaque, water_depth, reflected);
+    this.water.set_textures(opaque, water_depth, reflected, heights);
     this.controls.update();
     this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
   }
