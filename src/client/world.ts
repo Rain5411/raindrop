@@ -191,7 +191,7 @@ export class World {
       }
     }
 
-    // await this.load_sky_box();
+    await this.load_sky_box();
   }
 
   private async load_sky_box() {
@@ -314,8 +314,8 @@ export class World {
     this.reflectPass.update_camera(this.camera, this.controls.target.clone());
     const reflected = this.reflectPass.render(this.renderer, this.scene);
 
-    this.ripplePass.update_rain(this.rain);
-    const heights = this.ripplePass.render(this.renderer, null);
+    // this.ripplePass.update_rain(this.rain);
+    // const heights = this.ripplePass.render(this.renderer, null);
 
     this.water.set_visible(true);
     this.rain.visible = true;
@@ -326,7 +326,7 @@ export class World {
 
     this.raindropMaterial.uniforms.uTime.value = this.clock.getElapsedTime();
     this.raindropMaterial.uniforms.depth.value = depth;
-    this.water.set_textures(opaque, water_depth, reflected, heights);
+    this.water.set_textures(opaque, water_depth, reflected, null);
     this.controls.update();
     this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
   }

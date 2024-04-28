@@ -1,9 +1,7 @@
 varying vec2 screen_uv;
-varying float depth;
 
 void main() {
-  vec4 p = (projectionMatrix * modelViewMatrix * vec4(position, 1.0));
-  screen_uv = p.st;
-  depth = p.z;
+  vec4 p = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  screen_uv = (p.xy / p.w) * 0.5 + 0.5;
   gl_Position = p;
 }

@@ -9,13 +9,14 @@ import dummyFragmentShader from "../shaders/dummy_frag.glsl"
 
 export class RipplePass extends Pass<THREE.OrthographicCamera, THREE.Texture> {
   private ripple_material: THREE.ShaderMaterial;
-  private raindrop: THREE.Mesh;
+  private raindrops: THREE.DataTexture;
   private water_plane: THREE.Mesh;
   private heights: THREE.Texture;
+  private heights_data: Uint8Array;
 
   constructor(box: AABB, raindrop: THREE.Mesh, water_plane: THREE.Mesh) {
     super();
-    this.update_rain(raindrop);
+    // this.update_rain(raindrop);
     
     const center = new THREE.Vector3((box[0].x + box[1].x) / 2, (box[0].y + box[1].y) / 2, (box[0].z + box[1].z) / 2);
     this.camera = new THREE.OrthographicCamera(-(box[1].x - box[0].x) / 2, (box[1].x - box[0].x) / 2,
@@ -37,9 +38,12 @@ export class RipplePass extends Pass<THREE.OrthographicCamera, THREE.Texture> {
       init_data[stride + 3] = 0 ;
     }
 
-    const dt = new THREE.DataTexture(init_data);
+    const dt = new THREE.DataTexture(init_data, window.innerWidth, window.innerHeight);
     dt.needsUpdate = true;
     this.heights = dt;
+
+    this.raindrops = new THREE.DataTexture(this.heights_data, 100, 100);
+    this.heights_data = new Uint8Array(4 * 100 * 100);
 
     this.ripple_material = new THREE.ShaderMaterial({
       vertexShader: rippleVertexShader,
@@ -54,7 +58,7 @@ export class RipplePass extends Pass<THREE.OrthographicCamera, THREE.Texture> {
         far: {
           value: box[0].y
         },
-        raindrop: {
+        raindrops: {
           value: null
         },
         heights: {
@@ -75,44 +79,48 @@ export class RipplePass extends Pass<THREE.OrthographicCamera, THREE.Texture> {
         new THREE.PlaneGeometry(geo.parameters.width, geo.parameters.height, geo.parameters.widthSegments, geo.parameters.heightSegments),
         this.ripple_material
       );
+      this.water_plane.position.set(center.x, center.y, center.z);
+      this.water_plane.rotateX(-Math.PI / 2.0);
     }
   }
 
   public update_rain(raindrop: THREE.Mesh) {
-    if (raindrop != null && raindrop != undefined && (this.raindrop == null || raindrop.uuid !== this.raindrop.uuid)) {
-      this.raindrop = raindrop.clone(true);
-      this.raindrop.visible = true;
-      if (raindrop.material instanceof THREE.Material) {
-        this.raindrop.material = raindrop.material.clone();
-      }
+    // if (raindrop != null && raindrop != undefined && (this.raindrop == null || raindrop.uuid !== this.raindrop.uuid)) {
+    //   this.raindrop = raindrop.clone(true);
+    //   this.raindrop.visible = true;
+    //   if (raindrop.material instanceof THREE.Material) {
+    //     this.raindrop.material = raindrop.material.clone();
+    //   }
      
-      if (this.raindrop.material instanceof THREE.ShaderMaterial) {
-        this.raindrop.material.fragmentShader = dummyFragmentShader;
-      }
-    }
+    //   if (this.raindrop.material instanceof THREE.ShaderMaterial) {
+    //     this.raindrop.material.fragmentShader = dummyFragmentShader;
+    //   }
+    // }
   }
 
   public override render(renderer: THREE.WebGLRenderer, scene: THREE.Scene): THREE.Texture {
-    // get the raindrop position texture
-    if (this.raindrop != undefined && this.raindrop != null && this.raindrop.material instanceof THREE.ShaderMaterial) {
-      this.raindrop.visible = true;
-      renderer.setRenderTarget(this.target);
-      renderer.render(this.raindrop, this.camera);
-      this.raindrop.visible = false;
-      this.ripple_material.uniforms.raindrop.value = this.target.depthTexture;
+    const size = 100 * 100; // TODO: refactor!
+    for (let i = 0; i < size; ++i) {
+      const r = Math.random();
+      const stride = i * 4;
+      this.heights_data[stride] = (r < 0.001) ? 1 : 0.0 * 255.0;
+      this.heights_data[stride + 1] = 0;
+      this.heights_data[stride + 2] = 0;
+      this.heights_data[stride + 3] = 255.0;
     }
-    else {
-      return this.heights;
-    }
+    this.raindrops.needsUpdate = true;
 
     // iteration
-    for (let i = 0; i < 8; ++i) {
+    this.ripple_material.uniforms.has_drop.value = true;
+    this.ripple_material.uniforms.raindrops.value = this.raindrops;
+    for (let i = 0; i < 1; ++i) {
       const target = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
       renderer.setRenderTarget(target);
       this.init_target(target);
       this.ripple_material.uniforms.heights.value = this.heights;
       renderer.render(this.water_plane, this.camera);
       this.heights = target.texture;
+      this.ripple_material.uniforms.has_drop.value = false;
     }
 
     renderer.setRenderTarget(null);
