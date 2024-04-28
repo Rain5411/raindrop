@@ -10,7 +10,6 @@ import { Water } from "./waters.js";
 import { AABB, DepthPass } from "./pass/depth_pass.js";
 import { RefractionPass } from "./pass/refraction_pass.js";
 import { ReflectionPass } from "./pass/reflection_pass.js";
-import { RipplePass } from "./pass/ripple_pass.js";
 
 import rainVertexShader from "./shaders/rain_vertex.glsl";
 import rainFragmentShader from "./shaders/rain_frag.glsl";
@@ -33,7 +32,6 @@ export class World {
 
   private refracPass: RefractionPass;
   private reflectPass: ReflectionPass;
-  private ripplePass: RipplePass;
 
   private water: Water;
   private rain: THREE.InstancedMesh; // TODO: move to another class
@@ -80,17 +78,10 @@ export class World {
     const halfSize = size.clone().multiplyScalar(0.5);
 
     this.water = new Water(this.scene, new THREE.Vector2(size.x - 0.5, size.z - 0.5), center);
-    const view = this.controls.target.clone();
-    this.water.set_view_dir(view.sub(this.camera.position));
 
     const plane = new THREE.Plane();
     plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 1, 0), center.clone().add(new THREE.Vector3(0, size.y / 4.0 + 0.1, 0)));
     this.reflectPass = new ReflectionPass(this.camera, plane, this.controls.target);
-
-    const box: AABB = [ new THREE.Vector3(center.x - halfSize.x, center.y - halfSize.y, center.z - halfSize.z),
-      new THREE.Vector3(center.x + halfSize.x, top, center.z + halfSize.z) ];
-
-    this.ripplePass = new RipplePass(box, null, this.water.get_plane());
   }
 
   private async load_scene() {
@@ -314,19 +305,16 @@ export class World {
     this.reflectPass.update_camera(this.camera, this.controls.target.clone());
     const reflected = this.reflectPass.render(this.renderer, this.scene);
 
-    // this.ripplePass.update_rain(this.rain);
-    // const heights = this.ripplePass.render(this.renderer, null);
-
     this.water.set_visible(true);
     this.rain.visible = true;
     this.boxHelper.visible = true;
 
-    const view = this.controls.target.clone();
-    this.water.set_view_dir(view.sub(this.camera.position));
+    this.water.drop([
+    ]);
 
     this.raindropMaterial.uniforms.uTime.value = this.clock.getElapsedTime();
     this.raindropMaterial.uniforms.depth.value = depth;
-    this.water.set_textures(opaque, water_depth, reflected, null);
+    this.water.set_textures(opaque, water_depth, reflected);
     this.controls.update();
     this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
   }

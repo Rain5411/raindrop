@@ -17,7 +17,7 @@ float readDepth() {
 }
 
 void main() {
-  float fresnel = mix(0.25, 0.9, pow(1.0 - dot(norm, -view), 3.0));
+  float fresnel = mix(0.1, 0.95, pow(1.0 - dot(norm, -view), 3.0));
   
   vec2 uv = vec2(0.0, 0.0);
   if (water_depth > readDepth()) { // If we are sampling thing above water
