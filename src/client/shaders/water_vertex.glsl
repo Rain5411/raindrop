@@ -13,8 +13,8 @@ void main() {
   norm = normalize((normalMatrix * normal));
   view = normalize(modelViewMatrix * vec4(position, 1.0)).xyz;
   vec3 refract_dir = normalize(refract(view, norm, IOR_AIR / IOR_WATER));
-  // vec4 target = projectionMatrix * (modelViewMatrix * vec4(position, 1.0) + vec4(refract_dir, 0.0) - vec4(view, 0.0));
-  vec4 target = projectionMatrix * (modelViewMatrix * vec4(position, 1.0));
+  vec4 target = projectionMatrix * (modelViewMatrix * vec4(position, 1.0) + vec4(refract_dir, 0.0) - vec4(view, 0.0));
+  // vec4 target = projectionMatrix * (modelViewMatrix * vec4(position, 1.0));
 
   refract_uv = (target.xy / target.w) * 0.5 + 0.5;
   

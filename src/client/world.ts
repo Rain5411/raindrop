@@ -38,6 +38,9 @@ export class World {
 
   private boxHelper: THREE.BoxHelper;
 
+  private dropFuns: Array<(t: number) => number>;
+  private droppedPositions: THREE.Vector3[];
+
   constructor() {
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -210,8 +213,9 @@ export class World {
     this.scene.add(skybox)
   }
 
-  // private generate_pos(rand: THREE.Vector2): THREE.Vector3 {
-  // }
+  private rand(co: THREE.Vector2): number {
+    return Math.sin(co.dot(new THREE.Vector2(12.9898, 78.233)) * 43758.5453) % 1;
+  }
 
   private init_rain() {
     this.raindropMaterial = new THREE.ShaderMaterial({
@@ -265,6 +269,23 @@ export class World {
         for (let i = 0; i < randNumsArray.length; i++) {
             randNumsArray[i] = Math.random();
         }
+        this.droppedPositions = [];
+        this.dropFuns = [];
+        const lerp = (s: number, e: number, t: number) => s * t + e * (1 - t);
+        for (let i = 0; i < this.rain.count; ++i) {
+          const stride = i * 2;
+          this.droppedPositions.push(new THREE.Vector3(
+            lerp(-3.431, 4.918, randNumsArray[stride]),
+            lerp(-8.392, 10.435, randNumsArray[stride + 1]),
+            0
+          ));
+          this.dropFuns.push((t: number) => {
+            const y = this.rand(new THREE.Vector2((randNumsArray[stride] + 0.2) % 1, (randNumsArray[stride + 1] + 0.2) % 1)) * 7.319 - 4.717
+            const size = this.rand((new THREE.Vector2((randNumsArray[stride] - 4.717) % 1, (randNumsArray[stride + 1] - 4.717) % 1))) * 0.4 + 0.6;
+            const speed = 12 * (this.rand(new THREE.Vector2((randNumsArray[stride] + 0.6) % 1, (randNumsArray[stride + 1] + 0.6) % 1)) * 0.4 + 0.6) * (size / 2.0 + 0.5);
+            return (y - speed * t) % 7.319 - 4.717;
+          });
+        }
         this.scene.add(this.rain);
     };
     initRainInner();
@@ -309,10 +330,12 @@ export class World {
     this.rain.visible = true;
     this.boxHelper.visible = true;
 
-    this.water.drop([
-    ]);
-
-    this.raindropMaterial.uniforms.uTime.value = this.clock.getElapsedTime();
+    const time = this.clock.getElapsedTime();
+    for (let i = 0; i < this.rain.count; ++i) {
+      this.droppedPositions[i].z = this.dropFuns[i](time);
+    }
+    this.water.drop(this.droppedPositions);
+    this.raindropMaterial.uniforms.uTime.value = time;
     this.raindropMaterial.uniforms.depth.value = depth;
     this.water.set_textures(opaque, water_depth, reflected);
     this.controls.update();

@@ -114,10 +114,11 @@ export class Water {
 
   public drop(drops: THREE.Vector3[]) {
     for (const dp of drops) {
-      if (dp.y <= 0 && dp.x >= this.box[0].x && dp.x <= this.box[1].x && dp.z >= this.box[0].y && dp.z <= this.box[1].y) {
-        const x = Math.round((dp.x - this.box[0].x) * 25);
-        const y = Math.round((dp.z - this.box[0].y) * 25);
-        const dlt = 0.3;
+      const x = Math.round((dp.x - this.box[0].x) * 25);
+      const y = Math.round((dp.y - this.box[0].y) * 25);
+      const rd = Math.random();
+      if (dp.z <= 0 && rd <= 0.1 && x >= 0 && x < this.size[0] && y >= 0 && y < this.size[1]) {
+        const dlt = 0.01;
         this.h[x][y] += dlt;
 
         let srd = 0;
