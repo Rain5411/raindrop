@@ -113,6 +113,7 @@ export class World {
 
 
   // Helper functions for changing the parameters. Evenlistener uses them to interact with UI buttons.
+  // TODO: do we still need the dir?
   public set_sun(dir: [number, number, number], sunLightIntensity: number) {
     this.lightController.set_sunLightBrightness(sunLightIntensity);
     this.rain.set_raindropMaterial_uSunLightFactor(sunLightIntensity/2);
@@ -125,15 +126,10 @@ export class World {
     this.rain.set_raindropMaterial_uPointLightFactor(lampLightIntensity/5);
   }
 
-  public set_rain(  numRaindrops: number, maxSpeed: number, scale: number){
+  public set_rain(numRaindrops: number, maxSpeed: number, scale: number){
     this.rain.remove_rain(); // remove existing rain and set new one.
-    this.rain.set_numRainDrops(numRaindrops);
-    this.rain.set_raindropMaterial_uMaxSpeed(maxSpeed);
-    this.rain.set_raindropScale(scale);
+    this.rain.set_raindropScale(scale, numRaindrops, maxSpeed);
     this.rain.init_rain();
   }
-
-
-
 
 }

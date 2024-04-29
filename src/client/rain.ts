@@ -54,20 +54,14 @@ export class Rain {
     this.raindropMaterial.uniforms.uSunLightFactor.value = intensity;
   }
 
-  public set_raindropMaterial_uMaxSpeed(rainSpeed: number){
-    this.raindropMaterial.uniforms.uMaxSpeed.value = rainSpeed;
-  }
-
   public set_raindropMaterial_uPointLightPositions(pointLightPos: Array<THREE.Vector3>){
     this.raindropMaterial.uniforms.uPointLightPositions.value = pointLightPos;
   }
 
-  public set_numRainDrops(numRainDrops: number){
+  public set_raindropScale(scale: number, numRainDrops: number, rainSpeed: number){
+    this.raindropScale = scale;
     this.numRaindrops = numRainDrops;
-  }
-
-  public set_raindropScale(scale: number){
-    this.raindropScale = scale;  
+    this.raindropMaterial.uniforms.uMaxSpeed.value = rainSpeed;
   }
 
 
