@@ -118,7 +118,7 @@ export class Water {
       const y = Math.round((dp.y - this.box[0].y) * 25);
       const rd = Math.random();
       if (dp.z <= 0 && rd <= 0.1 && x >= 0 && x < this.size[0] && y >= 0 && y < this.size[1]) {
-        const dlt = 0.01;
+        const dlt = 0.01; // TODO: change the strength
         this.h[x][y] += dlt;
 
         let srd = 0;

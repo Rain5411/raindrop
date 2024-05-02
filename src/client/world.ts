@@ -154,6 +154,11 @@ export class World {
       }
     }
 
+    // initial default setup of sunLight, lamp, and rain.
+    this.set_rain(3000, 14, 0.003);
+    this.set_lamp(3) ;
+    this.set_sun([1,0,0], 0);
+
     await this.load_sky_box();
   }
 
@@ -180,11 +185,6 @@ export class World {
 
     const skybox = new THREE.Mesh(skyGeometry, materialArray);
     this.scene.add(skybox);
-
-    // initial default setup of sunLight, lamp, and rain.
-    this.set_rain(3000, 14, 0.003);
-    this.set_lamp(3) ;
-    this.set_sun([1,0,0], 0);
   }
 
   public update() {
