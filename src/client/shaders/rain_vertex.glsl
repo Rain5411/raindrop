@@ -1,4 +1,3 @@
-uniform float uCount;
 uniform float uTime;
 uniform float uMaxSpeed;
 // uniform vec3 uPointLightPositions[NUM_POINT_LIGHTS]; // positions of the two point light sources in the light bulbs

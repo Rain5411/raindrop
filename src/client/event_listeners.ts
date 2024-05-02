@@ -5,9 +5,19 @@ interface ISunlightParameter {
   intensity: number
 }
 
-interface ILampParameter {}
+interface ILampParameter {
+  lampLightIntensity: number
+}
 
-type ParameterType = ISunlightParameter & ILampParameter;
+interface IRainParameter {
+
+  numRaindrops: number,
+  maxSpeed: number,
+  scale: number
+}
+
+type ParameterType = ISunlightParameter & ILampParameter & IRainParameter;
+
 
 interface IParameterChangedEvent {
   setter: (world: World, parameters: ParameterType) => void,
@@ -15,18 +25,30 @@ interface IParameterChangedEvent {
 };
 
 const events = {
-  "time": {
-    "setter": set_time_parameters,
-    "parameters": [{ // TODO: update parameters
+  "sun": {
+    "setter": set_sun_parameters,
+    "parameters": [
+      { 
         direction: [1, 0, 0],
-        intensity: 1
-      } as ISunlightParameter, {
+        intensity: 0
+      } as ISunlightParameter, 
+      {
         direction: [1, 0, 0],
-        intensity: 1
-      } as ISunlightParameter, {
+        intensity: 0.2
+      } as ISunlightParameter, 
+      {
         direction: [1, 0, 0],
-        intensity: 1
-      } as ISunlightParameter, {
+        intensity: 0.4
+      } as ISunlightParameter, 
+      {
+        direction: [1, 0, 0],
+        intensity: 0.6
+      } as ISunlightParameter,
+      {
+        direction: [1, 0, 0],
+        intensity: 0.8
+      } as ISunlightParameter,
+      {
         direction: [1, 0, 0],
         intensity: 1
       } as ISunlightParameter
@@ -34,11 +56,63 @@ const events = {
   },
   "lamp": {
     "setter": set_lamp_parameters,
-    "parameters": [ {} ]
+    "parameters": [    
+      {
+          lampLightIntensity: 0
+      } as ILampParameter,
+      {
+          lampLightIntensity: 1
+      } as ILampParameter,
+      {
+          lampLightIntensity: 2
+      } as ILampParameter,
+      {
+          lampLightIntensity: 3
+      } as ILampParameter,
+      {
+          lampLightIntensity: 4
+      } as ILampParameter,
+      {
+          lampLightIntensity: 5
+      } as ILampParameter
+  ]
   },
   "rain": {
     "setter": set_rain_parameters,
-    "parameters": [] // TODO: fill later
+    "parameters": [      
+      {
+        numRaindrops: 0,
+        maxSpeed: 0,
+        scale: 0
+      } as IRainParameter,
+      {
+        numRaindrops: 1000,
+        maxSpeed: 6,
+        scale: 0.003
+      } as IRainParameter,
+      {
+        numRaindrops: 2000,
+        maxSpeed: 10,
+        scale: 0.003
+      } as IRainParameter,
+      {
+        numRaindrops: 3000,
+        maxSpeed: 14,
+        scale: 0.003
+      } as IRainParameter,
+      {
+        numRaindrops: 4000,
+        maxSpeed: 18,
+        scale: 0.003
+      } as IRainParameter,
+      {
+        numRaindrops: 5000,
+        maxSpeed: 22,
+        scale: 0.003
+      } as IRainParameter
+
+
+    ] // TODO: fill later
   },
   "water": {
     "setter": set_water_parameters,
@@ -65,18 +139,19 @@ export function init_events(world: World) {
   }
 }
 
-function set_time_parameters(world: World, parameters: ISunlightParameter) {
-  console.log(`set time parameter ${parameters}`);
-  world.set_sunlight(parameters.direction, parameters.intensity);
+function set_sun_parameters(world: World, parameters: ISunlightParameter) {
+  console.log(`set sun parameter ${parameters}`);
+  world.set_sun(parameters.direction, parameters.intensity);
 }
 
-function set_lamp_parameters(world: World) {
-  console.log(`set lamp parameter.`);
-  world.switch_lamp();
+function set_lamp_parameters(world: World, parameters: ILampParameter) {
+  console.log(`set lamp parameter ${parameters}`);
+  world.set_lamp(parameters.lampLightIntensity);
 }
 
-function set_rain_parameters(world: World, parameters: Object) { // TODO: set parameter
+function set_rain_parameters(world: World, parameters: IRainParameter) { // TODO: set parameter
   console.log(`set rain parameter ${parameters}`);
+  world.set_rain(parameters.numRaindrops, parameters.maxSpeed, parameters.scale);
 }
 
 function set_water_parameters(world: World, parameters: Object) { // TODO: set parameter
