@@ -29,6 +29,7 @@ export class LightController {
     // sunLight related parameters
     private sunLight: THREE.DirectionalLight;
     private sunLightIntensity: number;
+    private sunLightDirection: [number, number, number];
 
 
     constructor(scene: THREE.Scene, poolModel: GLTF){
@@ -87,6 +88,11 @@ export class LightController {
     public set_sunLightBrightness(intensity){
         this.sunLightIntensity = intensity
         this.sunLight.intensity = this. sunLightIntensity;
+    }
+
+    public set_sunLightDirection(dir: [number, number, number]){
+        this.sunLightDirection = dir;
+        this.sunLight.position.set(dir[0], dir[1], dir[2]);
     }
 
 

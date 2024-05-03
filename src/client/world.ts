@@ -157,35 +157,49 @@ export class World {
     // initial default setup of sunLight, lamp, and rain.
     this.set_rain(3000, 14, 0.003);
     this.set_lamp(3) ;
-    this.set_sun([1,0,0], 0);
+    this.set_sun([0,1,0], 0, 0);
 
-    await this.load_sky_box();
+    // await this.load_sky_box(0);
   }
 
-  private async load_sky_box() {
-    var picts = [
-      './skybox/px.jpg',
-      './skybox/nx.jpg',
-      './skybox/py.jpg',
-      './skybox/ny.jpg',
-      './skybox/pz.jpg',
-      './skybox/nz.jpg'
-    ]
+  private async load_sky_box(skybox_brightness_index: number) {
 
-    const loader = new THREE.TextureLoader()
-    const skyGeometry = new THREE.BoxGeometry(1000, 1000, 1000)
-    const materialArray = []
-    for (let i = 0; i < 6; i++)
-      materialArray.push(
-        new THREE.MeshBasicMaterial({
-          map: loader.load(picts[i]),
-          side: THREE.BackSide
-        })
-      )
+    if (skybox_brightness_index > -1 && skybox_brightness_index < 6){
 
-    const skybox = new THREE.Mesh(skyGeometry, materialArray);
-    this.scene.add(skybox);
-  }
+        var picts = [
+          `./skybox/brightness_${skybox_brightness_index}/px.jpg`,
+          `./skybox/brightness_${skybox_brightness_index}/nx.jpg`,
+          `./skybox/brightness_${skybox_brightness_index}/py.jpg`,
+          `./skybox/brightness_${skybox_brightness_index}/ny.jpg`,
+          `./skybox/brightness_${skybox_brightness_index}/pz.jpg`,
+          `./skybox/brightness_${skybox_brightness_index}/nz.jpg`
+        ]
+        // var picts = [
+        //   './skybox/px.jpg',
+        //   './skybox/nx.jpg',
+        //   './skybox/py.jpg',
+        //   './skybox/ny.jpg',
+        //   './skybox/pz.jpg',
+        //   './skybox/nz.jpg'
+        // ]
+    
+        const loader = new THREE.TextureLoader()
+        const skyGeometry = new THREE.BoxGeometry(1000, 1000, 1000)
+        const materialArray = []
+        for (let i = 0; i < 6; i++)
+          materialArray.push(
+            new THREE.MeshBasicMaterial({
+              map: loader.load(picts[i]),
+              side: THREE.BackSide
+            })
+          )
+    
+        const skybox = new THREE.Mesh(skyGeometry, materialArray);
+        this.scene.add(skybox);
+      } 
+
+    }
+
 
   public update() {
     requestAnimationFrame(this.update.bind(this));
@@ -216,12 +230,12 @@ export class World {
 
 
   // Helper functions for changing the parameters. Evenlistener uses them to interact with UI buttons.
-  // TODO: do we still need the dir?
-  public set_sun(dir: [number, number, number], sunLightIntensity: number) {
+  public async set_sun(dir: [number, number, number], sunLightIntensity: number, skybox_brightness_index: number) {
+    await this.load_sky_box(skybox_brightness_index);
     this.lightController.set_sunLightBrightness(sunLightIntensity);
+    this.lightController.set_sunLightDirection(dir);
     this.rain.set_raindropMaterial_uSunLightFactor(sunLightIntensity/2);
-    // const dir_v = new THREE.Vector3(dir[0], dir[1], dir[2]);
-    // this.scene.add(directionaLight);  
+    
   }
 
   public set_lamp(lampLightIntensity: number) {

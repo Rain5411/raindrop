@@ -2,7 +2,8 @@ import { World } from "./world.js";
 
 interface ISunlightParameter {
   direction: [number, number, number],
-  intensity: number
+  intensity: number,
+  skybox_brightness_index: number
 }
 
 interface ILampParameter {
@@ -29,28 +30,34 @@ const events = {
     "setter": set_sun_parameters,
     "parameters": [
       { 
-        direction: [1, 0, 0],
-        intensity: 0
+        direction: [0,1,0],
+        intensity: 0,
+        skybox_brightness_index: 0,
       } as ISunlightParameter, 
       {
-        direction: [1, 0, 0],
-        intensity: 0.2
+        direction: [0,1,0],
+        intensity: 0.2,
+        skybox_brightness_index: 1,
       } as ISunlightParameter, 
       {
-        direction: [1, 0, 0],
-        intensity: 0.4
+        direction: [0,1,0],
+        intensity: 0.4,
+        skybox_brightness_index: 2,
       } as ISunlightParameter, 
       {
-        direction: [1, 0, 0],
-        intensity: 0.6
+        direction: [0,1,0],
+        intensity: 0.6,
+        skybox_brightness_index: 3,
       } as ISunlightParameter,
       {
-        direction: [1, 0, 0],
-        intensity: 0.8
+        direction: [0,1,0],
+        intensity: 0.8,
+        skybox_brightness_index: 4,
       } as ISunlightParameter,
       {
-        direction: [1, 0, 0],
-        intensity: 1
+        direction: [0,1,0],
+        intensity: 1,
+        skybox_brightness_index: 5,
       } as ISunlightParameter
     ]
   },
@@ -141,7 +148,7 @@ export function init_events(world: World) {
 
 function set_sun_parameters(world: World, parameters: ISunlightParameter) {
   console.log(`set sun parameter ${parameters}`);
-  world.set_sun(parameters.direction, parameters.intensity);
+  world.set_sun(parameters.direction, parameters.intensity, parameters.skybox_brightness_index);
 }
 
 function set_lamp_parameters(world: World, parameters: ILampParameter) {
