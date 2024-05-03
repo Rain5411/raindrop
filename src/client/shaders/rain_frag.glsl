@@ -31,7 +31,7 @@ void main() {
   float combinedIntensity = (intensity0 + intensity1);  // This part is to make sure that raindrops further away from the bulb has lower intensity.
   float finalPointLightIntensityOnRaindrop = pointLightIntensityOnRaindrop * combinedIntensity;
 
-  if (raindropPosition.y < near + readDepth()) {
+  if (raindropPosition.y < near + readDepth() - 1.7) { // this is the right discard y level: Justin
     discard;
   }
 

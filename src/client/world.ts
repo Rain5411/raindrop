@@ -49,6 +49,10 @@ export class World {
     this.clock = new THREE.Clock;
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.maxPolarAngle = 1.2;  // limit orbitcontrol
+
+
+
     this.composer = new EffectComposer(this.renderer);
     this.refracPass = new RefractionPass(this.camera);
     
