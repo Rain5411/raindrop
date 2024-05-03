@@ -33,6 +33,7 @@ export class World {
   private bottom: number;
   private top: number;
 
+  private bloomPass: UnrealBloomPass;
   private refracPass: RefractionPass;
   private reflectPass: ReflectionPass;
 
@@ -40,16 +41,20 @@ export class World {
 
   private boxHelper: THREE.BoxHelper;
 
+
+
   constructor() {
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
+    this.renderer.toneMapping = THREE.ReinhardToneMapping;
+    this.renderer.toneMappingExposure = 2.0;
     this.clock = new THREE.Clock;
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.maxPolarAngle = 1.2;  // limit orbitcontrol
+    this.controls.maxPolarAngle = 1.4;  // limit orbitcontrol
 
 
 
@@ -135,9 +140,9 @@ export class World {
     //Bloom effect
     const renderPass = new RenderPass(this.scene, this.camera);
     // FIXME: find a correct threshold value.
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth / window.innerHeight), 2.0,1.0,10);
+    this.bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth / window.innerHeight), 1.0, 1.0, 1.0);
     this.composer.addPass(renderPass);
-    this.composer.addPass(bloomPass);
+    this.composer.addPass(this.bloomPass);
 
     // depth pass
     this.depthPass = new DepthPass(box);
@@ -159,7 +164,7 @@ export class World {
     }
 
     // initial default setup of sunLight, lamp, and rain.
-    this.set_rain(3000, 14, 0.003, 0.015);
+    this.set_rain(3000, 14, 0.005, 0.015);
     this.set_lamp(3) ;
     this.set_sun([0,1,0], 0, 0);
 
@@ -238,13 +243,20 @@ export class World {
     await this.load_sky_box(skybox_brightness_index);
     this.lightController.set_sunLightBrightness(sunLightIntensity);
     this.lightController.set_sunLightDirection(dir);
-    this.rain.set_raindropMaterial_uSunLightFactor(sunLightIntensity/2);
+    this.rain.set_raindropMaterial_uSunLightFactor(sunLightIntensity);
+
+    if(sunLightIntensity == 0){
+      this.bloomPass.strength = 1.0;
+    }
+    else{
+      this.bloomPass.strength = 0.3;
+    }
     
   }
 
   public set_lamp(lampLightIntensity: number) {
     this.lightController.set_lampBrightness(lampLightIntensity);
-    this.rain.set_raindropMaterial_uPointLightFactor(lampLightIntensity/5);
+    this.rain.set_raindropMaterial_uPointLightFactor(lampLightIntensity);
   }
 
   public set_rain(numRaindrops: number, maxSpeed: number, scale: number, splashStregnth: number){
