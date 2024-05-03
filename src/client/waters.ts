@@ -53,6 +53,12 @@ export class Water {
         },
         heights: {
           value: null
+        },
+        light_pos: {
+          value: []
+        },
+        light_intensity: {
+          value: 1.0
         }
       }
     });
@@ -84,6 +90,14 @@ export class Water {
 
   public set_color(color: THREE.Vector3) {
     this.color = color;
+  }
+
+  public set_light_pos(pos: Array<THREE.Vector3>){
+    this.material.uniforms.light_pos.value = pos;
+  }
+
+  public set_light_intensity(i: number) {
+    this.material.uniforms.light_intensity.value = i;
   }
 
   public set_textures(opaque: THREE.Texture, depth: THREE.DepthTexture, refl: THREE.Texture) {
