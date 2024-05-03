@@ -40,6 +40,9 @@ export class Rain {
         uPointLightPositions: {
           value: []
         },
+        depth: {
+          value: null
+        }
       },
     });
 
@@ -47,6 +50,10 @@ export class Rain {
 
   public set_raindropMaterial_uTime(elapsedTime: number){
     this.raindropMaterial.uniforms.uTime.value = elapsedTime;
+  }
+
+  public set_depth(txt: THREE.Texture) {
+    this.raindropMaterial.uniforms.depth.value = txt;
   }
 
   public set_raindropMaterial_uPointLightFactor(intensity: number){

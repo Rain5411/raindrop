@@ -46,6 +46,7 @@ export class World {
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.clock = new THREE.Clock;
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -209,6 +210,7 @@ export class World {
     this.water.drop(this.rain.get_dropped_positions(time));
     this.water.set_textures(opaque, water_depth, reflected);
     this.rain.set_raindropMaterial_uTime(time);
+    this.rain.set_depth(depth);
     this.controls.update();
     this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
   }
