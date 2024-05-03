@@ -143,7 +143,7 @@ export class World {
     this.depthPass = new DepthPass(box);
 
     // cast shadow
-    const names = ["Body_Body_0", "Marble", "Tile", "Table", "PLant1", "Plant2"];
+    const names = ["Body_Body_0", "Marble", "Tile", "Table", "PLant1", "Plant2", "lamp"];
     const enable_shadow = (mesh: THREE.Mesh) => {
       if (mesh === null || mesh === undefined) return;
       mesh.castShadow = mesh.receiveShadow = true;
@@ -234,10 +234,10 @@ export class World {
 
 
   // Helper functions for changing the parameters. Evenlistener uses them to interact with UI buttons.
-  public async set_sun(dir: [number, number, number], sunLightIntensity: number, skybox_brightness_index: number) {
+  public async set_sun(pos: [number, number, number], sunLightIntensity: number, skybox_brightness_index: number) {
     await this.load_sky_box(skybox_brightness_index);
     this.lightController.set_sunLightBrightness(sunLightIntensity);
-    this.lightController.set_sunLightDirection(dir);
+    this.lightController.set_sunLightPosition(new THREE.Vector3(pos[0], pos[1], pos[2]));
     this.rain.set_raindropMaterial_uSunLightFactor(sunLightIntensity/2);
     
   }
