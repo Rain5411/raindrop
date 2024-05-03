@@ -22,6 +22,8 @@ export class Water {
   private new_h: HGrid;
   private box: AABB;
 
+  private dlt: number;
+
   constructor(scene: THREE.Scene, size: THREE.Vector2, position: THREE.Vector3) {
     this.size = [Math.floor(25 * size.x), Math.floor(25 * size.y)];
     this.geometry = new THREE.PlaneGeometry(size.x, size.y, this.size[0] - 1, this.size[1] - 1);
@@ -73,6 +75,11 @@ export class Water {
     this.mesh.position.set(position.x, position.y, position.z);
     this.mesh.rotateX(-Math.PI / 2.0);
     scene.add(this.mesh);
+
+  }
+
+  public set_dlt(dlt_val: number){
+    this.dlt = dlt_val;
   }
 
   public set_color(color: THREE.Vector3) {
@@ -118,8 +125,8 @@ export class Water {
       const y = Math.round((dp.y - this.box[0].y) * 25);
       const rd = Math.random();
       if (dp.z <= 0 && rd <= 0.1 && x >= 0 && x < this.size[0] && y >= 0 && y < this.size[1]) {
-        const dlt = 0.01; // TODO: change the strength
-        this.h[x][y] += dlt;
+    
+        this.h[x][y] += this.dlt;
 
         let srd = 0;
         for (let n of next) {
@@ -131,16 +138,16 @@ export class Water {
         }
 
         if (x > 0) {
-          this.h[x - 1][y] -= dlt / srd;
+          this.h[x - 1][y] -= this.dlt / srd;
         }
         if (x < this.size[0] - 1) {
-          this.h[x + 1][y] -= dlt / srd;
+          this.h[x + 1][y] -= this.dlt / srd;
         }
         if (y > 0) {
-          this.h[x][y - 1] -= dlt / srd;
+          this.h[x][y - 1] -= this.dlt / srd;
         }
         if (y < this.size[1] - 1) {
-          this.h[x][y + 1] -= dlt / srd;
+          this.h[x][y + 1] -= this.dlt / srd;
         }
       }
     }

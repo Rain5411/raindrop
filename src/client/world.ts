@@ -159,7 +159,7 @@ export class World {
     }
 
     // initial default setup of sunLight, lamp, and rain.
-    this.set_rain(3000, 14, 0.003);
+    this.set_rain(3000, 14, 0.003, 0.015);
     this.set_lamp(3) ;
     this.set_sun([0,1,0], 0, 0);
 
@@ -247,10 +247,11 @@ export class World {
     this.rain.set_raindropMaterial_uPointLightFactor(lampLightIntensity/5);
   }
 
-  public set_rain(numRaindrops: number, maxSpeed: number, scale: number){
+  public set_rain(numRaindrops: number, maxSpeed: number, scale: number, splashStregnth: number){
     this.rain.remove_rain(); // remove existing rain and set new one.
     this.rain.set_raindropScale(scale, numRaindrops, maxSpeed);
     this.rain.init_rain();
+    this.water.set_dlt(splashStregnth);
   }
 
 }
