@@ -204,7 +204,9 @@ export class World {
     this.boxHelper.visible = true;
 
     const time = this.clock.getElapsedTime();
-    this.water.drop(this.rain.get_dropped_positions(time));
+    if (this.water.get_visible()) {
+      this.water.drop(this.rain.get_dropped_positions(time));
+    }
     this.water.set_textures(opaque, water_depth, reflected);
     this.rain.set_raindropMaterial_uTime(time);
     this.rain.set_depth(depth);
