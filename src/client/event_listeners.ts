@@ -16,7 +16,11 @@ interface IRainParameter {
   scale: number
 }
 
-type ParameterType = ISunlightParameter & ILampParameter & IRainParameter;
+interface IWaterParameter {
+  visible: boolean
+}
+
+type ParameterType = ISunlightParameter & ILampParameter & IRainParameter & IWaterParameter;
 
 
 interface IParameterChangedEvent {
@@ -116,7 +120,14 @@ const events = {
   },
   "water": {
     "setter": set_water_parameters,
-    "parameters": [] // TODO: fill later
+    "parameters": [
+      {
+        visible: true
+      } as IWaterParameter,
+      {
+        visible: false
+      } as IWaterParameter
+    ]
   }
 };
 
@@ -149,11 +160,12 @@ function set_lamp_parameters(world: World, parameters: ILampParameter) {
   world.set_lamp(parameters.lampLightIntensity);
 }
 
-function set_rain_parameters(world: World, parameters: IRainParameter) { // TODO: set parameter
+function set_rain_parameters(world: World, parameters: IRainParameter) {
   console.log(`set rain parameter ${parameters}`);
   world.set_rain(parameters.numRaindrops, parameters.maxSpeed, parameters.scale);
 }
 
-function set_water_parameters(world: World, parameters: Object) { // TODO: set parameter
+function set_water_parameters(world: World, parameters: IWaterParameter) {
   console.log(`set water parameter ${parameters}`);
+  world.set_water(parameters.visible);
 }

@@ -156,4 +156,8 @@ export class Water {
     positions.needsUpdate = true;
     this.geometry.computeVertexNormals();
   }
+
+  public get_visible(): boolean {
+    return this.mesh.visible;
+  }
 }

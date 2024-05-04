@@ -42,6 +42,12 @@ export class Rain {
         },
         depth: {
           value: null
+        },
+        near: {
+          value: 0.1
+        },
+        far: {
+          value: 1000
         }
       },
     });
@@ -126,5 +132,10 @@ export class Rain {
 
   public remove_rain(){
     this.scene.remove(this.rainObject);
+  }
+
+  public set_depth_camera_props(near: number, far: number) {
+    this.raindropMaterial.uniforms.near.value = near;
+    this.raindropMaterial.uniforms.far.value = far;
   }
 }

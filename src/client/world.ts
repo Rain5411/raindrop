@@ -30,9 +30,6 @@ export class World {
   private rain: Rain;
 
   private depthPass: DepthPass;
-  private bottom: number;
-  private top: number;
-
   private refracPass: RefractionPass;
   private reflectPass: ReflectionPass;
 
@@ -123,8 +120,9 @@ export class World {
     const box: AABB = [ new THREE.Vector3(center.x - halfSize.x, center.y - halfSize.y, center.z - halfSize.z),
       new THREE.Vector3(center.x + halfSize.x, center.y + halfSize.y, center.z + halfSize.z) ];
     console.log('Bounding Box Vertices:', vertices);
-    this.bottom = center.y - halfSize.y;
-    this.top = center.y + halfSize.y;
+    const bottom = center.y - halfSize.y;
+    const top = center.y + halfSize.y;
+    this.rain.set_depth_camera_props(top, bottom);
 
 
     //Bloom effect
@@ -194,13 +192,14 @@ export class World {
     this.rain.set_visible(false);
     const depth = this.depthPass.render(this.renderer, this.scene);
 
+    const water_vis = this.water.get_visible();
     this.water.set_visible(false);
 
     const [opaque, water_depth] = this.refracPass.render(this.renderer, this.scene);
     this.reflectPass.update_camera(this.camera, this.controls.target.clone());
     const reflected = this.reflectPass.render(this.renderer, this.scene);
 
-    this.water.set_visible(true);
+    this.water.set_visible(water_vis);
     this.rain.set_visible(true);
     this.boxHelper.visible = true;
 
@@ -233,6 +232,10 @@ export class World {
     this.rain.remove_rain(); // remove existing rain and set new one.
     this.rain.set_raindropScale(scale, numRaindrops, maxSpeed);
     this.rain.init_rain();
+  }
+
+  public set_water(visible: boolean) {
+    this.water.set_visible(visible);
   }
 
 }
