@@ -48,9 +48,6 @@ export class Water {
         },
         reflected_texture: {
           value: null
-        },
-        heights: {
-          value: null
         }
       }
     });

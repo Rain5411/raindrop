@@ -1,5 +1,3 @@
-uniform sampler2D heights;
-
 const float IOR_AIR = 1.0;
 const float IOR_WATER = 1.333;
 
@@ -13,8 +11,10 @@ void main() {
   norm = normalize((normalMatrix * normal));
   view = normalize(modelViewMatrix * vec4(position, 1.0)).xyz;
   vec3 refract_dir = normalize(refract(view, norm, IOR_AIR / IOR_WATER));
-  vec4 target = projectionMatrix * (modelViewMatrix * vec4(position, 1.0) + vec4(refract_dir, 0.0) - vec4(view, 0.0));
-  // vec4 target = projectionMatrix * (modelViewMatrix * vec4(position, 1.0));
+  const float water_height = 1.4; // height of water: 1.4
+  float ref_coef = water_height / dot(-refract_dir, norm);
+  float view_coef = water_height / dot(view, norm);
+  vec4 target = projectionMatrix * (modelViewMatrix * (vec4(position, 1.0) + vec4(refract_dir, 0.0) * ref_coef - vec4(view, 0.0) * view_coef));
 
   refract_uv = (target.xy / target.w) * 0.5 + 0.5;
   

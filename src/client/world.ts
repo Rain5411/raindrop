@@ -62,7 +62,7 @@ export class World {
     await this.load_scene();
   }
 
-  private load_water(pool: THREE.Mesh, top: number) {
+  private load_water(pool: THREE.Mesh) {
     const boundingBox = new THREE.Box3().setFromObject(pool);
     const center = new THREE.Vector3();
     const size = new THREE.Vector3();
@@ -70,8 +70,6 @@ export class World {
     boundingBox.getSize(size);
     
     center.y += size.y / 4.0;
-    const halfSize = size.clone().multiplyScalar(0.5);
-
     this.water = new Water(this.scene, new THREE.Vector2(size.x - 0.5, size.z - 0.5), center);
 
     const plane = new THREE.Plane();
@@ -151,7 +149,7 @@ export class World {
       enable_shadow(obj);
 
       if (name === "Tile") {
-        this.load_water(obj, center.y + halfSize.y);
+        this.load_water(obj);
       }
     }
 
