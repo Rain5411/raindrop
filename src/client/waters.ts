@@ -25,9 +25,10 @@ export class Water {
   constructor(scene: THREE.Scene, size: THREE.Vector2, position: THREE.Vector3) {
     this.size = [Math.floor(25 * size.x), Math.floor(25 * size.y)];
     this.geometry = new THREE.PlaneGeometry(size.x, size.y, this.size[0] - 1, this.size[1] - 1);
+    const offset = scene.getObjectByName("Tile").position;
     this.box = [
-      new THREE.Vector3(position.x - size.x / 2, position.y - size.y / 2, position.z),
-      new THREE.Vector3(position.x + size.x / 2, position.y + size.y / 2, position.z)
+      new THREE.Vector3(position.x - size.x / 2 + offset.x, position.y - size.y / 2 + offset.z, position.z),
+      new THREE.Vector3(position.x + size.x / 2 + offset.x, position.y + size.y / 2 + offset.z, position.z)
     ];
     this.color = new THREE.Vector3(0.25, 1.0, 1.25);
     this.material = new THREE.ShaderMaterial({
@@ -111,8 +112,8 @@ export class Water {
 
   public drop(drops: THREE.Vector3[]) {
     for (const dp of drops) {
-      const x = Math.round((dp.x - this.box[0].x) * 25);
-      const y = Math.round((dp.y - this.box[0].y) * 25);
+      const x = Math.floor((dp.x - this.box[0].x) / (this.box[1].x - this.box[0].x) * this.size[0]);
+      const y = Math.floor((dp.y - this.box[0].y) / (this.box[1].y - this.box[0].y) * this.size[1]);
       const rd = Math.random();
       if (dp.z <= 0 && rd <= 0.1 && x >= 0 && x < this.size[0] && y >= 0 && y < this.size[1]) {
         const dlt = 0.01; // TODO: change the strength
