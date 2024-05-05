@@ -51,22 +51,21 @@ export class LightController {
 
         // Initialize point lights - inside the two "lightbulb" parts of the lamp
         // TODO. Let users turn this on and off via UI to simulate lamp on and off.
-        this.pointLightLeft = new THREE.PointLight(0xf6f5af);
+        this.pointLightLeft = new THREE.PointLight(0xe2af6c);
         this.pointLightLeft.position.set(this.pointLightLeft_Pos.x, this.pointLightLeft_Pos.y, this.pointLightLeft_Pos.z);
         this.scene.add(this.pointLightLeft);
-        this.pointLightLeft.color.set(0xe2af6c);
         this.pointLightLeft.decay = 0.7;
         this.pointLightLeft.distance = 18;
         this.pointLightLeft.castShadow = true;
+        this.pointLightLeft.shadow.bias = -0.01;
 
-        this.pointLightRight = new THREE.PointLight(0xf6f5af);
+        this.pointLightRight = new THREE.PointLight(0xe2af6c);
         this.pointLightRight.position.set(this.pointLightRight_Pos.x, this.pointLightRight_Pos.y, this.pointLightRight_Pos.z);
         this.scene.add(this.pointLightRight);
-        this.pointLightRight.color.set(0xe2af6c);
         this.pointLightRight.decay = 0.7;
         this.pointLightRight.distance = 18;
         this.pointLightRight.castShadow = true;
-
+        this.pointLightRight.shadow.bias = -0.01;
 
 
         // ================== sunLight related ======================
@@ -75,19 +74,23 @@ export class LightController {
         this.sunLight.target = this.poolModel.scene;
         this.scene.add(this.sunLight);
 
-
     }
 
     public set_lampBrightness(lampLightIntensity){
         this.lampLightIntensity = lampLightIntensity;
         this.pointLightLeft.intensity = this.lampLightIntensity;
         this.pointLightRight.intensity = this.lampLightIntensity;
-        this.lampLightBulbMaterial.emissiveIntensity = this.lampLightIntensity / 2.5; 
+
+        if (lampLightIntensity > 0)
+            this.lampLightBulbMaterial.emissiveIntensity = 1 + this.lampLightIntensity / 2.5; 
+        else
+            this.lampLightBulbMaterial.emissiveIntensity = 0
     }
+    
 
     public set_sunLightBrightness(intensity){
         this.sunLightIntensity = intensity
-        this.sunLight.intensity = this. sunLightIntensity;
+        this.sunLight.intensity = this.sunLightIntensity;
     }
 
     public set_sunLightPosition(pos: THREE.Vector3){

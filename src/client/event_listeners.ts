@@ -97,31 +97,31 @@ const events = {
       {
         numRaindrops: 1000,
         maxSpeed: 6,
-        scale: 0.003,
+        scale: 0.005,
         splashStrength: 0.007
       } as IRainParameter,
       {
         numRaindrops: 2000,
         maxSpeed: 10,
-        scale: 0.003,
+        scale: 0.005,
         splashStrength: 0.01
       } as IRainParameter,
       {
         numRaindrops: 3000,
         maxSpeed: 14,
-        scale: 0.003,
+        scale: 0.005,
         splashStrength: 0.015
       } as IRainParameter,
       {
         numRaindrops: 4000,
         maxSpeed: 18,
-        scale: 0.003,
+        scale: 0.005,
         splashStrength: 0.02
       } as IRainParameter,
       {
         numRaindrops: 5000,
         maxSpeed: 22,
-        scale: 0.003,
+        scale: 0.005,
         splashStrength: 0.025
       } as IRainParameter
 
