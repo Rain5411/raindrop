@@ -29,7 +29,6 @@ export class LightController {
     // sunLight related parameters
     private sunLight: THREE.DirectionalLight;
     private sunLightIntensity: number;
-    private sunLightDirection: [number, number, number];
 
 
     constructor(scene: THREE.Scene, poolModel: GLTF){
@@ -69,13 +68,11 @@ export class LightController {
         this.pointLightRight.shadow.bias = -0.01;
 
 
-
         // ================== sunLight related ======================
         this.sunLight = new THREE.DirectionalLight(0xffffff, 0);
         this.sunLight.castShadow = true;
-        this.sunLight.shadow.bias = -0.01;
+        this.sunLight.target = this.poolModel.scene;
         this.scene.add(this.sunLight);
-
 
     }
 
@@ -96,12 +93,9 @@ export class LightController {
         this.sunLight.intensity = this.sunLightIntensity;
     }
 
-    public set_sunLightDirection(dir: [number, number, number]){
-        this.sunLightDirection = dir;
-        this.sunLight.position.set(dir[0], dir[1], dir[2]);
+    public set_sunLightPosition(pos: THREE.Vector3){
+      this.sunLight.position.set(pos.x, pos.y, pos.z);
     }
-
-
     
     public get_lampLightIntensity(){
         return this.lampLightIntensity;
