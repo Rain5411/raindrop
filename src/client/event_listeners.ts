@@ -125,7 +125,7 @@ export function init_events(world: World) {
 
   folder1.add(settings, "Sunlight Brightness", 0, 5, 1).listen().onChange((id: number) => set_sun_parameters(world, sunParameters[id]));
   folder2.add(settings, "Lamp Brightness", 0, 5, 1).listen().onChange((id: number) => set_lamp_parameters(world, lampParameters[id]));
-  folder3.add(settings, "Heaviness", 0, 4, 1).listen().onChange((id: number) => set_rain_parameters(world, rainParameters[id]));
+  folder3.add(settings, "Heaviness", 0, 5, 1).listen().onChange((id: number) => set_rain_parameters(world, rainParameters[id]));
 }
 
 function set_sun_parameters(world: World, parameters: ISunlightParameter) {
