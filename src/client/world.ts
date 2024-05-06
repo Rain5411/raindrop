@@ -37,9 +37,9 @@ export class World {
   private reflectPass: ReflectionPass;
 
   private water: Water;
+  private skybox: THREE.Mesh;
 
   private boxHelper: THREE.BoxHelper;
-  private timeStamp: number;
 
 
   constructor() {
@@ -70,7 +70,7 @@ export class World {
       this.renderer.setSize(window.innerWidth, window.innerHeight);
     };
 
-    this.timeStamp = 0.0;
+    this.skybox = null;
   }
 
   public async setup() {
@@ -178,6 +178,9 @@ export class World {
   }
 
   private async load_sky_box(skybox_brightness_index: number) {
+    if (this.skybox !== null) {
+      this.scene.remove(this.skybox);
+    }
 
     if (skybox_brightness_index > -1 && skybox_brightness_index < 6){
         const picts = [
@@ -200,8 +203,8 @@ export class World {
             })
           )
     
-        const skybox = new THREE.Mesh(skyGeometry, materialArray);
-        this.scene.add(skybox);
+        this.skybox = new THREE.Mesh(skyGeometry, materialArray);
+        this.scene.add(this.skybox);
       } 
 
     }
