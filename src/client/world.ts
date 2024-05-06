@@ -39,7 +39,7 @@ export class World {
   private water: Water;
 
   private boxHelper: THREE.BoxHelper;
-
+  private timeStamp: number;
 
 
   constructor() {
@@ -69,6 +69,8 @@ export class World {
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
     };
+
+    this.timeStamp = 0.0;
   }
 
   public async setup() {
@@ -178,8 +180,7 @@ export class World {
   private async load_sky_box(skybox_brightness_index: number) {
 
     if (skybox_brightness_index > -1 && skybox_brightness_index < 6){
-
-        var picts = [
+        const picts = [
           `./skybox/brightness_${skybox_brightness_index}/px.jpg`,
           `./skybox/brightness_${skybox_brightness_index}/nx.jpg`,
           `./skybox/brightness_${skybox_brightness_index}/py.jpg`,
@@ -187,14 +188,6 @@ export class World {
           `./skybox/brightness_${skybox_brightness_index}/pz.jpg`,
           `./skybox/brightness_${skybox_brightness_index}/nz.jpg`
         ]
-        // var picts = [
-        //   './skybox/px.jpg',
-        //   './skybox/nx.jpg',
-        //   './skybox/py.jpg',
-        //   './skybox/ny.jpg',
-        //   './skybox/pz.jpg',
-        //   './skybox/nz.jpg'
-        // ]
     
         const loader = new THREE.TextureLoader()
         const skyGeometry = new THREE.BoxGeometry(1000, 1000, 1000)
@@ -216,29 +209,25 @@ export class World {
 
   public update() {
     requestAnimationFrame(this.update.bind(this));
-    this.renderer.clear();
-
+    const fps = 1 / this.clock.getDelta();
     this.stats.update();
 
     this.boxHelper.visible = false;
     this.rain.set_visible(false);
     const depth = this.depthPass.render(this.renderer, this.scene);
 
-    const water_vis = this.water.get_visible();
     this.water.set_visible(false);
 
     const [opaque, water_depth] = this.refracPass.render(this.renderer, this.scene);
     this.reflectPass.update_camera(this.camera, this.controls.target.clone());
     const reflected = this.reflectPass.render(this.renderer, this.scene);
 
-    this.water.set_visible(water_vis);
+    this.water.set_visible(true);
     this.rain.set_visible(true);
     this.boxHelper.visible = true;
 
-    const time = this.clock.getElapsedTime();
-    if (this.water.get_visible()) {
-      this.water.drop(this.rain.get_dropped_positions(time));
-    }
+    const time = this.clock.getElapsedTime() * (30 / fps);
+    this.water.drop(this.rain.get_dropped_positions(time), fps);
     this.water.set_textures(opaque, water_depth, reflected);
     this.rain.set_raindropMaterial_uTime(time);
     this.rain.set_depth(depth);

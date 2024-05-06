@@ -120,7 +120,7 @@ export function init_events(world: World) {
   const settings = {
     "Sunlight Brightness": 0,
     "Lamp Brightness": 2,
-    "Heaviness": 2
+    "Heaviness": 3
   };
 
   folder1.add(settings, "Sunlight Brightness", 0, 5, 1).listen().onChange((id: number) => set_sun_parameters(world, sunParameters[id]));

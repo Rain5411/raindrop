@@ -117,7 +117,7 @@ export class Water {
     }
   }
 
-  public drop(drops: THREE.Vector3[]) {
+  public drop(drops: THREE.Vector3[], fps: number) {
     for (const dp of drops) {
       const x = Math.floor((dp.x - this.box[0].x) / (this.box[1].x - this.box[0].x) * this.size[0]);
       const y = Math.floor((dp.y - this.box[0].y) / (this.box[1].y - this.box[0].y) * this.size[1]);
@@ -150,7 +150,8 @@ export class Water {
       }
     }
 
-    for (let i = 0; i < 8; ++i) {
+    const allSteps = 240;
+    for (let i = 0; i < Math.floor(allSteps / fps); ++i) {
       this.shallow_wave();
     }
 
@@ -163,9 +164,5 @@ export class Water {
     }
     positions.needsUpdate = true;
     this.geometry.computeVertexNormals();
-  }
-
-  public get_visible(): boolean {
-    return this.mesh.visible;
   }
 }
