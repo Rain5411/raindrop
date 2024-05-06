@@ -161,7 +161,6 @@ export class World {
 
       if (name === "Tile") {
         this.load_water(obj, center.y + halfSize.y);
-        this.water.set_light_pos(this.lightController.get_pointLightPositions());
       }
     }
 
@@ -260,7 +259,6 @@ export class World {
   public set_lamp(lampLightIntensity: number) {
     this.lightController.set_lampBrightness(lampLightIntensity);
     this.rain.set_raindropMaterial_uPointLightFactor(lampLightIntensity/5);
-    this.water.set_light_intensity(lampLightIntensity/5);
   }
 
   public set_rain(numRaindrops: number, maxSpeed: number, scale: number, splashStregnth: number){
