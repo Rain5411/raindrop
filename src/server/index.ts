@@ -14,6 +14,7 @@ class App {
     const app = express();
     app.use(express.static(path.join(__dirname, "../client")));
     app.use("/build/three.module.js", express.static(path.join(__dirname, "../../node_modules/three/build/three.module.js")));
+    app.use("/addons", express.static(path.join(__dirname, "../../node_modules/three/examples/jsm/libs")));
     app.use("/jsm", express.static(path.join(__dirname, "../../node_modules/three/examples/jsm")));
     app.use("/model.glb", express.static(path.join(__dirname, "../client/model.glb")));
 

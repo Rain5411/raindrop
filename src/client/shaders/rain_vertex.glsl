@@ -1,11 +1,11 @@
 uniform float uTime;
 uniform float uMaxSpeed;
-uniform vec3 uPointLightPositions[NUM_POINT_LIGHTS]; // positions of the two point light sources in the light bulbs
+// uniform vec3 uPointLightPositions[NUM_POINT_LIGHTS]; // positions of the two point light sources in the light bulbs
       
 attribute vec2 aRandom; // just random number between 0~1
 
 varying vec3 raindropPosition;
-
+varying vec2 depthUV;
 
 float rand(vec2 co) {
   return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
@@ -42,9 +42,10 @@ void main() {
   float fallNumRand = fract(fallNum / 12345.678);
   raindropPositionY = mod(raindropPositionY, 7.319) - 4.717;
 
-  int lightIndex = int(floor(rand(fract(aRandom + fallNumRand + 0.34)) * float(NUM_POINT_LIGHTS)));
-  vec3 lightPosition = uPointLightPositions[lightIndex];
+  // int lightIndex = int(floor(rand(fract(aRandom + fallNumRand + 0.34)) * float(NUM_POINT_LIGHTS)));
+  // vec3 lightPosition = uPointLightPositions[lightIndex];
       
+  depthUV = vec2(aRandom.x, 1.0 - aRandom.y);
   raindropPosition = vec3(
     mix(-3.431, 4.918, aRandom.x),    // edge coordinates of the entire pool scene bounding box 
     raindropPositionY,
@@ -56,8 +57,8 @@ void main() {
       
   vec4 mvPosition = vec4(position, 1.0);
   mvPosition = modelViewMatrix 
-    * translationMatrix(lightPosition)
-    * translationMatrix(-lightPosition)
+    // * translationMatrix(lightPosition)
+    // * translationMatrix(-lightPosition)
     * translationMatrix(raindropPosition)
     * scaleMatrix(vec3(size, distPerFrame, size))
     * mvPosition;
