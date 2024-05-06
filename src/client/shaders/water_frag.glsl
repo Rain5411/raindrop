@@ -10,6 +10,7 @@ varying vec3 view;
 varying vec2 refract_uv;
 varying vec2 screen_uv;
 varying float water_depth;
+varying vec3 water_position;
 
 float readDepth() {
   float depth = texture2D(depth_texture, refract_uv).x;

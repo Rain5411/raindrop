@@ -1,8 +1,9 @@
 import { World } from "./world.js";
 
 interface ISunlightParameter {
-  direction: [number, number, number],
-  intensity: number
+  position: [number, number, number],
+  intensity: number,
+  skybox_brightness_index: number
 }
 
 interface ILampParameter {
@@ -13,7 +14,8 @@ interface IRainParameter {
 
   numRaindrops: number,
   maxSpeed: number,
-  scale: number
+  scale: number,
+  splashStrength: number,
 }
 
 interface IWaterParameter {
@@ -33,28 +35,34 @@ const events = {
     "setter": set_sun_parameters,
     "parameters": [
       { 
-        direction: [1, 0, 0],
-        intensity: 0
+        position: [0, 0, -1],
+        intensity: 0,
+        skybox_brightness_index: 0,
       } as ISunlightParameter, 
       {
-        direction: [1, 0, 0],
-        intensity: 0.2
+        position: [0, 0.1, -1],
+        intensity: 0.2,
+        skybox_brightness_index: 1,
       } as ISunlightParameter, 
       {
-        direction: [1, 0, 0],
-        intensity: 0.4
+        position: [0, 0.3, -1],
+        intensity: 0.4,
+        skybox_brightness_index: 2,
       } as ISunlightParameter, 
       {
-        direction: [1, 0, 0],
-        intensity: 0.6
+        position: [0, 0.5, -1],
+        intensity: 0.6,
+        skybox_brightness_index: 3,
       } as ISunlightParameter,
       {
-        direction: [1, 0, 0],
-        intensity: 0.8
+        position: [0, 0.6, -1],
+        intensity: 0.8,
+        skybox_brightness_index: 4,
       } as ISunlightParameter,
       {
-        direction: [1, 0, 0],
-        intensity: 1
+        position: [0, 0.8, -1],
+        intensity: 1,
+        skybox_brightness_index: 5,
       } as ISunlightParameter
     ]
   },
@@ -87,32 +95,38 @@ const events = {
       {
         numRaindrops: 0,
         maxSpeed: 0,
-        scale: 0
+        scale: 0,
+        splashStrength: 0
       } as IRainParameter,
       {
         numRaindrops: 1000,
         maxSpeed: 6,
-        scale: 0.003
+        scale: 0.005,
+        splashStrength: 0.007
       } as IRainParameter,
       {
         numRaindrops: 2000,
         maxSpeed: 10,
-        scale: 0.003
+        scale: 0.005,
+        splashStrength: 0.01
       } as IRainParameter,
       {
         numRaindrops: 3000,
         maxSpeed: 14,
-        scale: 0.003
+        scale: 0.005,
+        splashStrength: 0.015
       } as IRainParameter,
       {
         numRaindrops: 4000,
         maxSpeed: 18,
-        scale: 0.003
+        scale: 0.005,
+        splashStrength: 0.02
       } as IRainParameter,
       {
         numRaindrops: 5000,
         maxSpeed: 22,
-        scale: 0.003
+        scale: 0.005,
+        splashStrength: 0.025
       } as IRainParameter
 
 
@@ -152,7 +166,7 @@ export function init_events(world: World) {
 
 function set_sun_parameters(world: World, parameters: ISunlightParameter) {
   console.log(`set sun parameter ${parameters}`);
-  world.set_sun(parameters.direction, parameters.intensity);
+  world.set_sun(parameters.position, parameters.intensity, parameters.skybox_brightness_index);
 }
 
 function set_lamp_parameters(world: World, parameters: ILampParameter) {
@@ -162,7 +176,7 @@ function set_lamp_parameters(world: World, parameters: ILampParameter) {
 
 function set_rain_parameters(world: World, parameters: IRainParameter) {
   console.log(`set rain parameter ${parameters}`);
-  world.set_rain(parameters.numRaindrops, parameters.maxSpeed, parameters.scale);
+  world.set_rain(parameters.numRaindrops, parameters.maxSpeed, parameters.scale, parameters.splashStrength);
 }
 
 function set_water_parameters(world: World, parameters: IWaterParameter) {

@@ -52,6 +52,7 @@ export class Rain {
       },
     });
 
+    this.raindropMaterial.blending = THREE.AdditiveBlending; 
   }
 
   public set_raindropMaterial_uTime(elapsedTime: number){
@@ -63,11 +64,11 @@ export class Rain {
   }
 
   public set_raindropMaterial_uPointLightFactor(intensity: number){
-    this.raindropMaterial.uniforms.uPointLightFactor.value = intensity;
+    this.raindropMaterial.uniforms.uPointLightFactor.value = intensity/40.0;
   }
 
   public set_raindropMaterial_uSunLightFactor(intensity: number){
-    this.raindropMaterial.uniforms.uSunLightFactor.value = intensity;
+    this.raindropMaterial.uniforms.uSunLightFactor.value = intensity/25.0;
   }
 
   public set_raindropMaterial_uPointLightPositions(pointLightPos: Array<THREE.Vector3>){
@@ -89,7 +90,7 @@ export class Rain {
   }
 
   public init_rain() { // I simplified the rain logic
-    const raindropGeometry = new THREE.CylinderGeometry(1, 1, 1, 8, 1, false);
+    const raindropGeometry = new THREE.CylinderGeometry(1, 1, 1, 4, 1, true);
     raindropGeometry.scale(this.raindropScale, 1, this.raindropScale);
 
     // InstancedMesh to create a lot of raindrops at once.

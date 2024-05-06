@@ -30,6 +30,7 @@ export class World {
   private rain: Rain;
 
   private depthPass: DepthPass;
+  private bloomPass: UnrealBloomPass;
   private refracPass: RefractionPass;
   private reflectPass: ReflectionPass;
 
@@ -37,16 +38,24 @@ export class World {
 
   private boxHelper: THREE.BoxHelper;
 
+
+
   constructor() {
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    this.camera.position.set(25,14,2);
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.toneMapping = THREE.ReinhardToneMapping;
+    this.renderer.toneMappingExposure = 2.0;
     this.clock = new THREE.Clock;
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.maxPolarAngle = 1.4;  // limit orbitcontrol
+
+
+
     this.composer = new EffectComposer(this.renderer);
     this.refracPass = new RefractionPass(this.camera);
     
@@ -97,7 +106,7 @@ export class World {
     // For debugging, draw a yellow bounding box around our poolmodel scene.
     const boundingBox = new THREE.Box3().setFromObject(poolModel.scene);
     this.boxHelper = new THREE.BoxHelper(poolModel.scene, 0xffff00);
-    this.scene.add(this.boxHelper);
+    // this.scene.add(this.boxHelper);
 
     // For debugging, log the coordinate values of the 8 verticies of the bounding box of our pool model scene. This tells exact size of our "world"
     const center = new THREE.Vector3();
@@ -128,15 +137,15 @@ export class World {
     //Bloom effect
     const renderPass = new RenderPass(this.scene, this.camera);
     // FIXME: find a correct threshold value.
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth / window.innerHeight), 2.0,1.0,10);
+    this.bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth / window.innerHeight), 1.0, 1.0, 1.0);
     this.composer.addPass(renderPass);
-    this.composer.addPass(bloomPass);
+    this.composer.addPass(this.bloomPass);
 
     // depth pass
     this.depthPass = new DepthPass(box);
 
     // cast shadow
-    const names = ["Body_Body_0", "Marble", "Tile", "Table", "PLant1", "Plant2"];
+    const names = ["Body_Body_0", "Marble", "Tile", "Table", "PLant1", "Plant2", "lamp"];
     const enable_shadow = (mesh: THREE.Mesh) => {
       if (mesh === null || mesh === undefined) return;
       mesh.castShadow = mesh.receiveShadow = true;
@@ -152,37 +161,51 @@ export class World {
     }
 
     // initial default setup of sunLight, lamp, and rain.
-    this.set_rain(3000, 14, 0.003);
+    this.set_rain(3000, 14, 0.005, 0.015);
     this.set_lamp(3) ;
-    this.set_sun([1,0,0], 0);
+    this.set_sun([0,0,-1], 0, 0);
 
-    await this.load_sky_box();
+    // await this.load_sky_box(0);
   }
 
-  private async load_sky_box() {
-    var picts = [
-      './skybox/px.jpg',
-      './skybox/nx.jpg',
-      './skybox/py.jpg',
-      './skybox/ny.jpg',
-      './skybox/pz.jpg',
-      './skybox/nz.jpg'
-    ]
+  private async load_sky_box(skybox_brightness_index: number) {
 
-    const loader = new THREE.TextureLoader()
-    const skyGeometry = new THREE.BoxGeometry(1000, 1000, 1000)
-    const materialArray = []
-    for (let i = 0; i < 6; i++)
-      materialArray.push(
-        new THREE.MeshBasicMaterial({
-          map: loader.load(picts[i]),
-          side: THREE.BackSide
-        })
-      )
+    if (skybox_brightness_index > -1 && skybox_brightness_index < 6){
 
-    const skybox = new THREE.Mesh(skyGeometry, materialArray);
-    this.scene.add(skybox);
-  }
+        var picts = [
+          `./skybox/brightness_${skybox_brightness_index}/px.jpg`,
+          `./skybox/brightness_${skybox_brightness_index}/nx.jpg`,
+          `./skybox/brightness_${skybox_brightness_index}/py.jpg`,
+          `./skybox/brightness_${skybox_brightness_index}/ny.jpg`,
+          `./skybox/brightness_${skybox_brightness_index}/pz.jpg`,
+          `./skybox/brightness_${skybox_brightness_index}/nz.jpg`
+        ]
+        // var picts = [
+        //   './skybox/px.jpg',
+        //   './skybox/nx.jpg',
+        //   './skybox/py.jpg',
+        //   './skybox/ny.jpg',
+        //   './skybox/pz.jpg',
+        //   './skybox/nz.jpg'
+        // ]
+    
+        const loader = new THREE.TextureLoader()
+        const skyGeometry = new THREE.BoxGeometry(1000, 1000, 1000)
+        const materialArray = []
+        for (let i = 0; i < 6; i++)
+          materialArray.push(
+            new THREE.MeshBasicMaterial({
+              map: loader.load(picts[i]),
+              side: THREE.BackSide
+            })
+          )
+    
+        const skybox = new THREE.Mesh(skyGeometry, materialArray);
+        this.scene.add(skybox);
+      } 
+
+    }
+
 
   public update() {
     requestAnimationFrame(this.update.bind(this));
@@ -217,12 +240,20 @@ export class World {
 
 
   // Helper functions for changing the parameters. Evenlistener uses them to interact with UI buttons.
-  // TODO: do we still need the dir?
-  public set_sun(dir: [number, number, number], sunLightIntensity: number) {
+  public async set_sun(pos: [number, number, number], sunLightIntensity: number, skybox_brightness_index: number) {
+    await this.load_sky_box(skybox_brightness_index);
     this.lightController.set_sunLightBrightness(sunLightIntensity);
+
+    this.lightController.set_sunLightPosition(new THREE.Vector3(pos[0], pos[1], pos[2]));
     this.rain.set_raindropMaterial_uSunLightFactor(sunLightIntensity/2);
-    // const dir_v = new THREE.Vector3(dir[0], dir[1], dir[2]);
-    // this.scene.add(directionaLight);  
+
+    if(sunLightIntensity == 0){
+      this.bloomPass.strength = 1.0;
+    }
+    else{
+      this.bloomPass.strength = 0.3;
+    }
+    
   }
 
   public set_lamp(lampLightIntensity: number) {
@@ -230,10 +261,11 @@ export class World {
     this.rain.set_raindropMaterial_uPointLightFactor(lampLightIntensity/5);
   }
 
-  public set_rain(numRaindrops: number, maxSpeed: number, scale: number){
+  public set_rain(numRaindrops: number, maxSpeed: number, scale: number, splashStregnth: number){
     this.rain.remove_rain(); // remove existing rain and set new one.
     this.rain.set_raindropScale(scale, numRaindrops, maxSpeed);
     this.rain.init_rain();
+    this.water.set_dlt(splashStregnth);
   }
 
   public set_water(visible: boolean) {
