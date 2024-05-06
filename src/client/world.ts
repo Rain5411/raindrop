@@ -14,12 +14,14 @@ import { ReflectionPass } from "./pass/reflection_pass.js";
 import { Rain } from "./rain.js";
 import { LightController  } from "./light_controller.js";
 
+import Stats from "/addons/stats.module.js";
+
 export class World {
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
   private renderer: THREE.WebGLRenderer;
   private clock: THREE.Clock;
-
+  private stats: Stats;
 
   private controls: OrbitControls;
   private composer: EffectComposer;
@@ -54,14 +56,19 @@ export class World {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.maxPolarAngle = 1.4;  // limit orbitcontrol
 
-
-
     this.composer = new EffectComposer(this.renderer);
     this.refracPass = new RefractionPass(this.camera);
     
     this.rain = new Rain(this.scene);
 
+    this.stats = new Stats();
+		document.body.appendChild(this.stats.dom);
     document.body.appendChild(this.renderer.domElement);
+    window.onresize = () => {
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+    };
   }
 
   public async setup() {
@@ -210,6 +217,8 @@ export class World {
   public update() {
     requestAnimationFrame(this.update.bind(this));
     this.renderer.clear();
+
+    this.stats.update();
 
     this.boxHelper.visible = false;
     this.rain.set_visible(false);
