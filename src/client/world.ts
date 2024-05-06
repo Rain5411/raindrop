@@ -46,6 +46,7 @@ export class World {
   constructor() {
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    this.camera.position.set(25,14,2);
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
@@ -110,7 +111,7 @@ export class World {
     // For debugging, draw a yellow bounding box around our poolmodel scene.
     const boundingBox = new THREE.Box3().setFromObject(poolModel.scene);
     this.boxHelper = new THREE.BoxHelper(poolModel.scene, 0xffff00);
-    this.scene.add(this.boxHelper);
+    // this.scene.add(this.boxHelper);
 
     // For debugging, log the coordinate values of the 8 verticies of the bounding box of our pool model scene. This tells exact size of our "world"
     const center = new THREE.Vector3();
@@ -167,7 +168,7 @@ export class World {
     // initial default setup of sunLight, lamp, and rain.
     this.set_rain(3000, 14, 0.005, 0.015);
     this.set_lamp(3) ;
-    this.set_sun([0,1,0], 0, 0);
+    this.set_sun([0,0,-1], 0, 0);
 
     // await this.load_sky_box(0);
   }
