@@ -40,6 +40,15 @@ export class Rain {
         uPointLightPositions: {
           value: []
         },
+        depth: {
+          value: null
+        },
+        near: {
+          value: 0.1
+        },
+        far: {
+          value: 1000
+        }
       },
     });
 
@@ -48,6 +57,10 @@ export class Rain {
 
   public set_raindropMaterial_uTime(elapsedTime: number){
     this.raindropMaterial.uniforms.uTime.value = elapsedTime;
+  }
+
+  public set_depth(txt: THREE.Texture) {
+    this.raindropMaterial.uniforms.depth.value = txt;
   }
 
   public set_raindropMaterial_uPointLightFactor(intensity: number){
@@ -120,5 +133,10 @@ export class Rain {
 
   public remove_rain(){
     this.scene.remove(this.rainObject);
+  }
+
+  public set_depth_camera_props(near: number, far: number) {
+    this.raindropMaterial.uniforms.near.value = near;
+    this.raindropMaterial.uniforms.far.value = far;
   }
 }

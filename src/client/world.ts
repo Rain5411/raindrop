@@ -30,9 +30,6 @@ export class World {
   private rain: Rain;
 
   private depthPass: DepthPass;
-  private bottom: number;
-  private top: number;
-
   private bloomPass: UnrealBloomPass;
   private refracPass: RefractionPass;
   private reflectPass: ReflectionPass;
@@ -71,7 +68,7 @@ export class World {
     await this.load_scene();
   }
 
-  private load_water(pool: THREE.Mesh, top: number) {
+  private load_water(pool: THREE.Mesh) {
     const boundingBox = new THREE.Box3().setFromObject(pool);
     const center = new THREE.Vector3();
     const size = new THREE.Vector3();
@@ -79,8 +76,6 @@ export class World {
     boundingBox.getSize(size);
     
     center.y += size.y / 4.0;
-    const halfSize = size.clone().multiplyScalar(0.5);
-
     this.water = new Water(this.scene, new THREE.Vector2(size.x - 0.5, size.z - 0.5), center);
 
     const plane = new THREE.Plane();
@@ -134,8 +129,9 @@ export class World {
     const box: AABB = [ new THREE.Vector3(center.x - halfSize.x, center.y - halfSize.y, center.z - halfSize.z),
       new THREE.Vector3(center.x + halfSize.x, center.y + halfSize.y, center.z + halfSize.z) ];
     console.log('Bounding Box Vertices:', vertices);
-    this.bottom = center.y - halfSize.y;
-    this.top = center.y + halfSize.y;
+    const bottom = center.y - halfSize.y;
+    const top = center.y + halfSize.y;
+    this.rain.set_depth_camera_props(top, bottom);
 
 
     //Bloom effect
@@ -160,7 +156,7 @@ export class World {
       enable_shadow(obj);
 
       if (name === "Tile") {
-        this.load_water(obj, center.y + halfSize.y);
+        this.load_water(obj);
       }
     }
 
@@ -219,20 +215,24 @@ export class World {
     this.rain.set_visible(false);
     const depth = this.depthPass.render(this.renderer, this.scene);
 
+    const water_vis = this.water.get_visible();
     this.water.set_visible(false);
 
     const [opaque, water_depth] = this.refracPass.render(this.renderer, this.scene);
     this.reflectPass.update_camera(this.camera, this.controls.target.clone());
     const reflected = this.reflectPass.render(this.renderer, this.scene);
 
-    this.water.set_visible(true);
+    this.water.set_visible(water_vis);
     this.rain.set_visible(true);
     this.boxHelper.visible = true;
 
     const time = this.clock.getElapsedTime();
-    this.water.drop(this.rain.get_dropped_positions(time));
+    if (this.water.get_visible()) {
+      this.water.drop(this.rain.get_dropped_positions(time));
+    }
     this.water.set_textures(opaque, water_depth, reflected);
     this.rain.set_raindropMaterial_uTime(time);
+    this.rain.set_depth(depth);
     this.controls.update();
     this.composer.render(); // we use this insteand of "this.renderer.render()" because otherwise the Bloom effect will not work.
   }
@@ -266,6 +266,10 @@ export class World {
     this.rain.set_raindropScale(scale, numRaindrops, maxSpeed);
     this.rain.init_rain();
     this.water.set_dlt(splashStregnth);
+  }
+
+  public set_water(visible: boolean) {
+    this.water.set_visible(visible);
   }
 
 }
