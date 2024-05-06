@@ -30,6 +30,8 @@ export class LightController {
     private sunLight: THREE.DirectionalLight;
     private sunLightIntensity: number;
 
+    private ambientLight: THREE.AmbientLight;
+
 
     constructor(scene: THREE.Scene, poolModel: GLTF){
 
@@ -74,12 +76,16 @@ export class LightController {
         this.sunLight.target = this.poolModel.scene;
         this.scene.add(this.sunLight);
 
+        this.ambientLight = new THREE.AmbientLight(0xe2af6c, 0.1);
+        this.scene.add(this.ambientLight);
+
     }
 
     public set_lampBrightness(lampLightIntensity){
         this.lampLightIntensity = lampLightIntensity;
         this.pointLightLeft.intensity = this.lampLightIntensity;
         this.pointLightRight.intensity = this.lampLightIntensity;
+        this.ambientLight.intensity = this.lampLightIntensity / 10.0;
 
         if (lampLightIntensity > 0)
             this.lampLightBulbMaterial.emissiveIntensity = 1 + this.lampLightIntensity / 2.5; 
