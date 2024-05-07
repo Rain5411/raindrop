@@ -1,5 +1,5 @@
-const float IOR_AIR = 1.0;
-const float IOR_WATER = 1.333;
+const float airIOR = 1.0;
+const float waterIOR = 1.333;
 
 varying vec3 norm;
 varying vec3 view;
@@ -10,7 +10,7 @@ varying float waterDepth;
 void main() {
   norm = normalize((normalMatrix * normal));
   view = normalize(modelViewMatrix * vec4(position, 1.0)).xyz;
-  vec3 refractDir = normalize(refract(view, norm, IOR_AIR / IOR_WATER));
+  vec3 refractDir = normalize(refract(view, norm, airIOR / waterIOR));
   vec4 target = projectionMatrix * (modelViewMatrix * (vec4(position, 1.0) + vec4(refractDir, 0.0) - vec4(view, 0.0)));
 
   refractUV = (target.xy / target.w) * 0.5 + 0.5;

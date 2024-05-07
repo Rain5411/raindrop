@@ -51,7 +51,7 @@ void main() {
     mix(bottom, top, aRandom.y) // * edge coordinates of the entire pool scene bounding box 
   );
 
-  float distPerFrame = (speed) / 60.0;
+  float distPerFrame = speed / 60.0;
   vec4 mvPosition = vec4(position, 1.0);
   mvPosition = modelViewMatrix 
     * translationMatrix(raindropPosition)

@@ -32,7 +32,7 @@ void main() {
     discard;
   }
 
-  // rain frag take account of both sunlight and lamp pointlights
+  // * rain frag take account of both sunlight and lamp pointlights
   vec4 finalColor = vec4(diffuseColor.rgb * (finalPointLightIntensityOnRaindrop + uSunLightFactor), diffuseColor.a);
   gl_FragColor = finalColor;
 }
