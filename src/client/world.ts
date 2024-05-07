@@ -222,7 +222,7 @@ export class World {
     this.water.set_visible(false);
 
     const [opaque, water_depth] = this.refracPass.render(this.renderer, this.scene);
-    this.reflectPass.update_camera(this.camera, this.controls.target.clone());
+    this.reflectPass.updateCamera(this.camera, this.controls.target.clone());
     const reflected = this.reflectPass.render(this.renderer, this.scene);
 
     this.water.set_visible(true);
