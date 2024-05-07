@@ -37,19 +37,16 @@ export class Water {
       vertexShader: waterVertexShader,
       fragmentShader: waterFragmentShader,
       uniforms: {
-        water_color: {
+        waterColor: {
           value: this.color
         },
-        view_dir: {
-          value: new THREE.Vector3()
-        },
-        opaque_texture: {
+        opaqueTexture: {
           value: null
         },
-        depth_texture: {
+        depthTexture: {
           value: null
         },
-        reflected_texture: {
+        reflectedTexture: {
           value: null
         }
       }
@@ -85,9 +82,9 @@ export class Water {
   }
 
   public set_textures(opaque: THREE.Texture, depth: THREE.DepthTexture, refl: THREE.Texture) {
-    this.material.uniforms.opaque_texture.value = opaque;
-    this.material.uniforms.depth_texture.value = depth;
-    this.material.uniforms.reflected_texture.value = refl;
+    this.material.uniforms.opaqueTexture.value = opaque;
+    this.material.uniforms.depthTexture.value = depth;
+    this.material.uniforms.reflectedTexture.value = refl;
   }
 
   public set_visible(vis: boolean) {
