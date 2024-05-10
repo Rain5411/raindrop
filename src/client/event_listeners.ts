@@ -111,7 +111,7 @@ const rainParameters: IRainParameter[] = [
   }
 ];
 
-export function init_events(world: World) {
+export function initEvents(world: World) {
   const panel = new GUI( { width: 310 } );
   const folder1 = panel.addFolder("Sunlight");
 	const folder2 = panel.addFolder("Lamp");
@@ -123,22 +123,22 @@ export function init_events(world: World) {
     "Heaviness": 3
   };
 
-  folder1.add(settings, "Sunlight Brightness", 0, 5, 1).listen().onChange((id: number) => set_sun_parameters(world, sunParameters[id]));
-  folder2.add(settings, "Lamp Brightness", 0, 5, 1).listen().onChange((id: number) => set_lamp_parameters(world, lampParameters[id]));
-  folder3.add(settings, "Heaviness", 0, 5, 1).listen().onChange((id: number) => set_rain_parameters(world, rainParameters[id]));
+  folder1.add(settings, "Sunlight Brightness", 0, 5, 1).listen().onChange((id: number) => setSunParameters(world, sunParameters[id]));
+  folder2.add(settings, "Lamp Brightness", 0, 5, 1).listen().onChange((id: number) => setLampParameters(world, lampParameters[id]));
+  folder3.add(settings, "Heaviness", 0, 5, 1).listen().onChange((id: number) => setRainParameters(world, rainParameters[id]));
 }
 
-function set_sun_parameters(world: World, parameters: ISunlightParameter) {
+function setSunParameters(world: World, parameters: ISunlightParameter) {
   console.log(`set sun parameter ${parameters}`);
-  world.set_sun(parameters.position, parameters.intensity, parameters.skybox_brightness_index);
+  world.setSun(parameters.position, parameters.intensity, parameters.skybox_brightness_index);
 }
 
-function set_lamp_parameters(world: World, parameters: ILampParameter) {
+function setLampParameters(world: World, parameters: ILampParameter) {
   console.log(`set lamp parameter ${parameters}`);
-  world.set_lamp(parameters.lampLightIntensity);
+  world.setLamp(parameters.lampLightIntensity);
 }
 
-function set_rain_parameters(world: World, parameters: IRainParameter) {
+function setRainParameters(world: World, parameters: IRainParameter) {
   console.log(`set rain parameter ${parameters}`);
-  world.set_rain(parameters.numRaindrops, parameters.maxSpeed, parameters.scale, parameters.splashStrength);
+  world.setRain(parameters.numRaindrops, parameters.maxSpeed, parameters.scale, parameters.splashStrength);
 }

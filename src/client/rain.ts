@@ -15,9 +15,7 @@ export class Rain {
   private dropFuns: Array<(t: number) => number>;
   private droppedPositions: THREE.Vector3[];
 
-
   constructor(scene: THREE.Scene){
-
     this.scene = scene;
 
     this.raindropMaterial = new THREE.ShaderMaterial({
@@ -55,33 +53,33 @@ export class Rain {
     this.raindropMaterial.blending = THREE.AdditiveBlending; 
   }
 
-  public set_raindropMaterial_uTime(elapsedTime: number){
+  public setRaindropMaterialuTime(elapsedTime: number){
     this.raindropMaterial.uniforms.uTime.value = elapsedTime;
   }
 
-  public set_depth(txt: THREE.Texture) {
+  public setDepth(txt: THREE.Texture) {
     this.raindropMaterial.uniforms.depth.value = txt;
   }
 
-  public set_raindropMaterial_uPointLightFactor(intensity: number){
-    this.raindropMaterial.uniforms.uPointLightFactor.value = intensity/40.0;
+  public setRaindropMaterialuPointLightFactor(intensity: number){
+    this.raindropMaterial.uniforms.uPointLightFactor.value = intensity / 40.0;
   }
 
-  public set_raindropMaterial_uSunLightFactor(intensity: number){
-    this.raindropMaterial.uniforms.uSunLightFactor.value = intensity/25.0;
+  public setRaindropMaterialuSunLightFactor(intensity: number){
+    this.raindropMaterial.uniforms.uSunLightFactor.value = intensity / 25.0;
   }
 
-  public set_raindropMaterial_uPointLightPositions(pointLightPos: Array<THREE.Vector3>){
+  public setRaindropMaterialuPointLightPositions(pointLightPos: Array<THREE.Vector3>){
     this.raindropMaterial.uniforms.uPointLightPositions.value = pointLightPos;
   }
 
-  public set_raindropScale(scale: number, numRainDrops: number, rainSpeed: number){
+  public setRaindropScale(scale: number, numRainDrops: number, rainSpeed: number){
     this.raindropScale = scale;
     this.numRaindrops = numRainDrops;
     this.raindropMaterial.uniforms.uMaxSpeed.value = rainSpeed;
   }
 
-  public set_visible(vis: boolean) {
+  public setVisible(vis: boolean) {
     this.rainObject.visible = vis;
   }
 
@@ -89,20 +87,27 @@ export class Rain {
     return Math.sin(co.dot(new THREE.Vector2(12.9898, 78.233)) * 43758.5453) % 1;
   }
 
-  public init_rain() { // I simplified the rain logic
+  public initRain() {
     const raindropGeometry = new THREE.CylinderGeometry(1, 1, 1, 4, 1, true);
     raindropGeometry.scale(this.raindropScale, 1, this.raindropScale);
 
-    // InstancedMesh to create a lot of raindrops at once.
+    // * InstancedMesh to create a lot of raindrops at once.
     this.rainObject = new THREE.InstancedMesh(raindropGeometry, this.raindropMaterial, this.numRaindrops);
     const randNumsArray = new Float32Array(this.rainObject.count * 2);
     const randomNums = new THREE.InstancedBufferAttribute(randNumsArray, 2);
-    raindropGeometry.setAttribute('aRandom', randomNums);
+    raindropGeometry.setAttribute("aRandom", randomNums);
 
     for (let i = 0; i < randNumsArray.length; i++) {
         randNumsArray[i] = Math.random();
     }
     this.scene.add(this.rainObject);
+
+    const modelHeight = 7.319;
+    const displacement = 4.717;
+    const left = -3.431;
+    const right = 4.918;
+    const top = 10.435;
+    const bottom = -8.392;
 
     this.droppedPositions = [];
     this.dropFuns = [];
@@ -110,20 +115,20 @@ export class Rain {
     for (let i = 0; i < this.rainObject.count; ++i) {
       const stride = i * 2;
       this.droppedPositions.push(new THREE.Vector3(
-        lerp(-3.431, 4.918, randNumsArray[stride]),
-        lerp(-8.392, 10.435, randNumsArray[stride + 1]),
+        lerp(left, right, randNumsArray[stride]),
+        lerp(bottom, top, randNumsArray[stride + 1]),
         0
       ));
       this.dropFuns.push((t: number) => {
-        const y = this.rand(new THREE.Vector2((randNumsArray[stride] + 0.2) % 1, (randNumsArray[stride + 1] + 0.2) % 1)) * 7.319 - 4.717
-        const size = this.rand((new THREE.Vector2((randNumsArray[stride] - 4.717) % 1, (randNumsArray[stride + 1] - 4.717) % 1))) * 0.4 + 0.6;
+        const y = this.rand(new THREE.Vector2((randNumsArray[stride] + 0.2) % 1, (randNumsArray[stride + 1] + 0.2) % 1)) * modelHeight - displacement
+        const size = this.rand((new THREE.Vector2((randNumsArray[stride] - displacement) % 1, (randNumsArray[stride + 1] - displacement) % 1))) * 0.4 + 0.6;
         const speed = 12 * (this.rand(new THREE.Vector2((randNumsArray[stride] + 0.6) % 1, (randNumsArray[stride + 1] + 0.6) % 1)) * 0.4 + 0.6) * (size / 2.0 + 0.5);
-        return (y - speed * t) % 7.319 - 4.717;
+        return (y - speed * t) % modelHeight - displacement;
       });
     }
   }
 
-  public get_dropped_positions(time: number): THREE.Vector3[] {
+  public getDroppedPositions(time: number): THREE.Vector3[] {
     for (let i = 0; i < this.droppedPositions.length; ++i) {
       this.droppedPositions[i].z = this.dropFuns[i](time);
     }
@@ -131,11 +136,11 @@ export class Rain {
     return this.droppedPositions;
   }
 
-  public remove_rain(){
+  public removeRain() {
     this.scene.remove(this.rainObject);
   }
 
-  public set_depth_camera_props(near: number, far: number) {
+  public setDepthCameraProps(near: number, far: number) {
     this.raindropMaterial.uniforms.near.value = near;
     this.raindropMaterial.uniforms.far.value = far;
   }

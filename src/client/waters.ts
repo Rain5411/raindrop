@@ -5,7 +5,7 @@ import waterFragmentShader from "./shaders/water_frag.glsl";
 
 import { AABB } from "./pass/depth_pass";
 
-type HGrid = Array<Float32Array>;
+type HeightField = Array<Float32Array>;
 
 const next = [[0, 1], [1, 0], [-1, 0], [0, -1]];
 const damping = 0.996;
@@ -17,15 +17,16 @@ export class Water {
   private color: THREE.Vector3;
   private size: [number, number]
   private geometry: THREE.PlaneGeometry;
-  private old_h: HGrid;
-  private h: HGrid;
-  private new_h: HGrid;
+  private oldh: HeightField;
+  private h: HeightField;
+  private newh: HeightField;
   private box: AABB;
 
   private dlt: number;
 
   constructor(scene: THREE.Scene, size: THREE.Vector2, position: THREE.Vector3) {
-    this.size = [Math.floor(25 * size.x), Math.floor(25 * size.y)];
+    const scale = 25;
+    this.size = [Math.floor(scale * size.x), Math.floor(scale * size.y)];
     this.geometry = new THREE.PlaneGeometry(size.x, size.y, this.size[0] - 1, this.size[1] - 1);
     const offset = scene.getObjectByName("Tile").position;
     this.box = [
@@ -37,35 +38,32 @@ export class Water {
       vertexShader: waterVertexShader,
       fragmentShader: waterFragmentShader,
       uniforms: {
-        water_color: {
+        waterColor: {
           value: this.color
         },
-        view_dir: {
-          value: new THREE.Vector3()
-        },
-        opaque_texture: {
+        opaqueTexture: {
           value: null
         },
-        depth_texture: {
+        depthTexture: {
           value: null
         },
-        reflected_texture: {
+        reflectedTexture: {
           value: null
         }
       }
     });
 
-    this.old_h = new Array<Float32Array>();
+    this.oldh = new Array<Float32Array>();
     this.h = new Array<Float32Array>();
-    this.new_h = new Array<Float32Array>();
+    this.newh = new Array<Float32Array>();
     for (let i = 0; i < this.size[0]; ++i) {
-      this.old_h[i] = new Float32Array(this.size[1]);
+      this.oldh[i] = new Float32Array(this.size[1]);
       this.h[i] = new Float32Array(this.size[1]);
-      this.new_h[i] = new Float32Array(this.size[1]);
+      this.newh[i] = new Float32Array(this.size[1]);
       for (let j = 0; j < this.size[1]; ++j) {
-        this.old_h[i][j] = 0;
+        this.oldh[i][j] = 0;
         this.h[i][j] = 0;
-        this.new_h[i][j] = 0;
+        this.newh[i][j] = 0;
       }
     }
 
@@ -76,34 +74,30 @@ export class Water {
 
   }
 
-  public set_dlt(dlt_val: number){
-    this.dlt = dlt_val;
+  public setDlt(dlt: number){
+    this.dlt = dlt;
   }
 
-  public set_color(color: THREE.Vector3) {
-    this.color = color;
+  public setTextures(opaque: THREE.Texture, depth: THREE.DepthTexture, refl: THREE.Texture) {
+    this.material.uniforms.opaqueTexture.value = opaque;
+    this.material.uniforms.depthTexture.value = depth;
+    this.material.uniforms.reflectedTexture.value = refl;
   }
 
-  public set_textures(opaque: THREE.Texture, depth: THREE.DepthTexture, refl: THREE.Texture) {
-    this.material.uniforms.opaque_texture.value = opaque;
-    this.material.uniforms.depth_texture.value = depth;
-    this.material.uniforms.reflected_texture.value = refl;
-  }
-
-  public set_visible(vis: boolean) {
+  public setVisible(vis: boolean) {
     this.mesh.visible = vis;
   }
 
-  private shallow_wave() {
+  private shallowWave() {
     for (let i = 0; i < this.size[0]; ++i) {
       for (let j = 0; j < this.size[1]; ++j) {
-        this.new_h[i][j] = this.h[i][j] + (this.h[i][j] - this.old_h[i][j]) * damping;
+        this.newh[i][j] = this.h[i][j] + (this.h[i][j] - this.oldh[i][j]) * damping;
 
         for (let n of next) {
           const ni = i + n[0];
           const nj = j + n[1];
           if (ni >= 0 && ni < this.size[0] && nj >= 0 && nj < this.size[1]) {
-            this.new_h[i][j] += (this.h[ni][nj] - this.h[i][j]) * rate;
+            this.newh[i][j] += (this.h[ni][nj] - this.h[i][j]) * rate;
           }
         }
       }
@@ -111,8 +105,8 @@ export class Water {
 
     for (let i = 0; i < this.size[0]; ++i) {
       for (let j = 0; j < this.size[1]; ++j) {
-        this.old_h[i][j] = this.h[i][j];
-        this.h[i][j] = this.new_h[i][j];
+        this.oldh[i][j] = this.h[i][j];
+        this.h[i][j] = this.newh[i][j];
       }
     }
   }
@@ -152,7 +146,7 @@ export class Water {
 
     const allSteps = 240;
     for (let i = 0; i < Math.floor(allSteps / fps); ++i) {
-      this.shallow_wave();
+      this.shallowWave();
     }
 
     const positions = this.geometry.attributes.position as THREE.BufferAttribute;
